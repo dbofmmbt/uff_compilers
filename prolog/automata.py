@@ -25,10 +25,8 @@ class Automata:
         self.states[next_id] = state
         return next_id
 
-    def add_transition(
-        self, source: Name, destination: Name, trigger: str, commit_symbols: int = 0
-    ):
-        self.states[source].add_transition(destination, trigger, commit_symbols)
+    def add_transition(self, source: Name, destination: Name, trigger: str):
+        self.states[source].add_transition(destination, trigger)
 
     def next_token(self, iterator: Iterator[str]) -> Tuple[Token, Iterator[str]] | None:
         try:

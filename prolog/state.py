@@ -12,5 +12,5 @@ class State:
         self.sink = sink
         self.transitions = transitions if transitions is not None else []
 
-    def add_transition(self, destination: Name, trigger: str, commit_symbols: int = 0):
-        self.transitions.append(Transition(destination, trigger, commit_symbols))
+    def add_transition(self, destination: Name, trigger: str):
+        self.transitions.append(Transition(destination, trigger))

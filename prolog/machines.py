@@ -30,7 +30,7 @@ def exactly(char: str):
     for state in [start, end]:
         automata.add_state(state)
 
-    automata.add_transition(name(0), name(1), char, commit_symbols=1)
+    automata.add_transition(name(0), name(1), char)
 
     return automata
 

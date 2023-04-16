@@ -34,6 +34,6 @@ if __name__ == "__main__":
     id0 = automata.add_state(state0)
     id1 = automata.add_state(state1)
 
-    automata.add_transition(id0, id1, ".", commit_symbols=1)
+    automata.add_transition(id0, id1, ".")
 
     print_automata(automata)

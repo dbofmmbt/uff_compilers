@@ -8,4 +8,3 @@ EPSILON = "ε"
 class Transition:
     destination: Name
     trigger: str
-    commit_symbols: int = 0
