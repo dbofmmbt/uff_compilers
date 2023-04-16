@@ -1,8 +1,11 @@
 from dataclasses import dataclass
-from prolog.state import State
+from .automata import Name
+
+EPSILON = "ε"
 
 
 @dataclass
 class Transition:
-    destination: State
+    destination: Name
     trigger: str
+    commit_symbols: int = 0

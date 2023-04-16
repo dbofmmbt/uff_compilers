@@ -1,5 +1,8 @@
 from string import ascii_lowercase, ascii_uppercase, digits
-from prolog.state import DONE, State
+
+from .name import name
+from .state import State
+from .automata import Automata
 
 
 def dot():
@@ -19,12 +22,17 @@ def right_paren():
 
 
 def exactly(char: str):
+    automata = Automata()
+
     start = State()
-    end = State.final()
+    end = State(sink=char)
 
-    start.add_transition(end, char)
+    for state in [start, end]:
+        automata.add_state(state)
 
-    return start
+    automata.add_transition(name(0), name(1), char, commit_symbols=1)
+
+    return automata
 
 
 def two_dots_dash():
