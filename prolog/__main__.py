@@ -1,21 +1,18 @@
 # letra minuscula
-from prolog.category import Category
 from prolog import machines
 
 
 def categories():
     return [
-        Category(label="DOT", machine=machines.dot()),
-        Category(label="COMMA", machine=machines.comma()),
-        Category(label="TWO_DOTS_SLASH", machine=machines.two_dots_dash()),
-        Category(label="QUERY", machine=machines.query()),
-
-        Category(label="LEFT_PAREN", machine=machines.left_paren()),
-        Category(label="RIGHT_PAREN", machine=machines.right_paren()),
-
-        Category(label="ATOM", machine=machines.atom()),
-        Category(label="VARIABLE", machine=machines.variable()),
-        Category(label="NUMERAL", machine=machines.numeral()),
+        ("DOT", machines.dot()),
+        ("COMMA", machines.comma()),
+        ("TWO_DOTS_SLASH", machines.two_dots_dash()),
+        ("QUERY", machines.query()),
+        ("LEFT_PAREN", machines.left_paren()),
+        ("RIGHT_PAREN", machines.right_paren()),
+        ("ATOM", machines.atom()),
+        ("VARIABLE", machines.variable()),
+        ("NUMERAL", machines.numeral()),
     ]
 
 

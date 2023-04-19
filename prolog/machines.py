@@ -1,6 +1,7 @@
+import itertools
 from string import ascii_lowercase, ascii_uppercase, digits
 
-from .name import name
+from .name import Name, name
 from .state import State
 from .automata import Automata
 
@@ -24,88 +25,84 @@ def right_paren():
 def exactly(char: str):
     automata = Automata()
 
-    start = State()
-    end = State(sink=char)
+    start = automata.add_state()
+    end = automata.add_state(category=char)
 
-    for state in [start, end]:
-        automata.add_state(state)
-
-    automata.add_transition(name(0), name(1), char)
+    automata.add_transition(start.name, end.name, char)
 
     return automata
 
 
 def two_dots_dash():
-    start = State()
-    two_dots = State()
-    end = State.final()
+    automata = Automata()
+    start = automata.add_state()
+    two_dots = automata.add_state()
+    end = automata.add_state(category="TWO_DOTS_DASH")
 
-    start.add_transition(two_dots, ":")
-    two_dots.add_transition(end, "-")
+    automata.add_transition(start.name, two_dots.name, ":")
+    automata.add_transition(two_dots.name, end.name, "-")
 
-    return start
+    return automata
 
 
 def query():
-    start = State()
-    question_mark = State()
-    end = State.final()
+    automata = Automata()
+    start = automata.add_state()
+    question_mark = automata.add_state()
+    end = automata.add_state(category="QUERY")
 
-    start.add_transition(question_mark, "?")
-    question_mark.add_transition(end, "-")
+    automata.add_transition(start.name, question_mark.name, "?")
+    automata.add_transition(question_mark.name, end.name, "-")
 
-    return start
+    return automata
 
 
 def atom():
-    start = State()
-    loop = State()
+    automata = Automata()
+    start = automata.add_state()
+    loop = automata.add_state(category="ATOM")
 
     for char in ascii_lowercase:
-        start.add_transition(loop, char)
+        automata.add_transition(start.name, loop.name, char)
 
-    loop_over_identifier_ascii(loop)
+    loop_over_identifier_ascii(automata, loop)
 
-    return start
+    return automata
 
 
 def variable():
-    start = State()
-    loop = State()
+    automata = Automata()
+    start = automata.add_state()
+    loop = automata.add_state(category="VARIABLE")
 
     for char in ascii_uppercase:
-        start.add_transition(loop, char)
+        automata.add_transition(start.name, loop.name, char)
 
-    loop_over_identifier_ascii(loop)
-    loop.fallback = DONE
+    loop_over_identifier_ascii(automata, loop)
 
-    return start
+    return automata
 
 
-def loop_over_identifier_ascii(loop):
-    for char in ascii_lowercase:
-        loop.add_transition(loop, char)
+def loop_over_identifier_ascii(automata: Automata, loop: State):
+    name = loop.name
 
-    for char in ascii_uppercase:
-        loop.add_transition(loop, char)
+    def create_loop(char):
+        automata.add_transition(name, name, char)
 
-    for char in digits:
-        loop.add_transition(loop, char)
-
-    loop.fallback = DONE
+    for char in itertools.chain(ascii_lowercase, ascii_uppercase, digits):
+        create_loop(char)
 
 
 def numeral():
-    start = State()
-    loop = State()
+    automata = Automata()
+    start = automata.add_state()
+    loop = automata.add_state(category="NUMERAL")
 
     # Skipping '0'
     for char in digits[1:]:
-        start.add_transition(loop, char)
+        automata.add_transition(start.name, loop.name, char)
 
     for char in digits:
-        loop.add_transition(loop, char)
+        automata.add_transition(loop.name, loop.name, char)
 
-    loop.fallback = DONE
-
-    return start
+    return automata

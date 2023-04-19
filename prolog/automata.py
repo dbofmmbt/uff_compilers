@@ -10,8 +10,6 @@ class Automata:
     states: dict[Name, State]
     current = name(0)
     numbering_sequence: itertools.count
-    word = ""
-    symbols_in_process = ""
 
     def __init__(self):
         self.states = {}
@@ -20,38 +18,45 @@ class Automata:
     def current_state(self) -> State:
         return self.states[self.current]
 
-    def add_state(self, state: State) -> Name:
+    def add_state(self, category: str | None = None) -> State:
         next_id = name(next(self.numbering_sequence))
+        state = State(name=next_id, category=category)
         self.states[next_id] = state
-        return next_id
+        return state
 
     def add_transition(self, source: Name, destination: Name, trigger: str):
         self.states[source].add_transition(destination, trigger)
 
     def next_token(self, iterator: Iterator[str]) -> Tuple[Token, Iterator[str]] | None:
-        try:
-            try:
-                symbol = next(iterator)
-            except StopIteration:
-                return
+        self.current = name(0)
+        word = ""
+        symbol = ""
 
+        while True:
             try:
+                symbol = next(iterator, "")
                 transition = next(
                     filter(
                         lambda t: t.trigger == symbol, self.current_state().transitions
                     )
                 )
-                # TODO compute commit_symbols
                 self.current = transition.destination
+                word += symbol
             except StopIteration:
-                sink = self.current_state().sink
+                category = self.current_state().category
 
-                if sink is not None:
+                if category is not None:
                     return (
-                        Token(sink, self.word),
-                        itertools.chain(self.symbols_in_process, iterator),
+                        Token(category, word),
+                        itertools.chain(symbol, iterator),
                     )
-        finally:
-            self.word = ""
-            self.symbols_in_process = ""
-            self.current = name(0)
+                else:
+                    match symbol:
+                        case "":
+                            # end of input
+                            return None
+                        case " " | "\n":
+                            # just ignore those chars for now
+                            pass
+                        case _:
+                            raise Exception(f"Invalid token found: {word}")

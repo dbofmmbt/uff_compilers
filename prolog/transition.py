@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from .automata import Name
+from .name import Name
 
 EPSILON = "ε"
 

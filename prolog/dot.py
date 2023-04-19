@@ -1,20 +1,38 @@
 import graphviz
+from prolog import machines
+
+from prolog.machines import two_dots_dash
 from .automata import Automata
+
+
+def example_automatas():
+    return [
+        ("DOT", machines.dot()),
+        ("COMMA", machines.comma()),
+        ("TWO_DOTS_SLASH", machines.two_dots_dash()),
+        ("QUERY", machines.query()),
+        ("LEFT_PAREN", machines.left_paren()),
+        ("RIGHT_PAREN", machines.right_paren()),
+        ("ATOM", machines.atom()),
+        ("VARIABLE", machines.variable()),
+        ("NUMERAL", machines.numeral()),
+    ]
 
 
 def print_automata(automata: Automata):
     dot = graphviz.Digraph("Automata")
 
     for id, state in automata.states.items():
-        dot.node(set_to_str(id))
+        border_count = 2 if state.is_final else 1
+
+        dot.node(set_to_str(id), peripheries=str(border_count))
 
         for transition in state.transitions:
             dot.edge(
-                set_to_str(id), set_to_str(transition.destination), transition.trigger
+                set_to_str(id),
+                set_to_str(transition.destination),
+                transition.trigger,
             )
-        sink_label = state.sink or "failure"
-        dot.node(sink_label, peripheries="2")
-        dot.edge(set_to_str(id), sink_label, "otherwise")
 
     dot.render(view=True)
 
@@ -25,15 +43,15 @@ def set_to_str(a):
 
 if __name__ == "__main__":
     from .automata import Automata
-    from .state import State
 
     automata = Automata()
 
-    state0 = State()
-    state1 = State(sink="DOT")
-    id0 = automata.add_state(state0)
-    id1 = automata.add_state(state1)
+    state0 = automata.add_state()
+    state1 = automata.add_state(category="DOT")
 
-    automata.add_transition(id0, id1, ".")
+    automata.add_transition(state0.name, state1.name, ".")
+    automata = two_dots_dash()
 
-    print_automata(automata)
+    for _, automata in example_automatas():
+        print_automata(automata)
+        input()
