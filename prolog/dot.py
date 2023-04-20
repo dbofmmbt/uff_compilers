@@ -2,6 +2,7 @@ import graphviz
 from prolog import machines
 
 from prolog.machines import two_dots_dash
+from prolog.regular_expression import union
 from .automata import Automata
 
 
@@ -50,8 +51,6 @@ if __name__ == "__main__":
     state1 = automata.add_state(category="DOT")
 
     automata.add_transition(state0.name, state1.name, ".")
-    automata = two_dots_dash()
+    other = two_dots_dash()
 
-    for _, automata in example_automatas():
-        print_automata(automata)
-        input()
+    print_automata(union(automata, other))
