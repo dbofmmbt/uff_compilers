@@ -3,7 +3,7 @@ import graphviz
 from prolog import machines
 
 from prolog.machines import two_dots_dash
-from prolog.regular_expression import concat, union
+from prolog.regular_expression import concat, star, union
 from prolog.state import State
 from .automata import Automata
 
@@ -101,6 +101,10 @@ def print_concat():
 
 def print_together():
     print_automata(*two_simple_automatas())
+
+
+def print_star():
+    print_automata(*map(star, two_simple_automatas()))
 
 
 def print_all():

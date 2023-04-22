@@ -44,7 +44,7 @@ def union(a: Automata, b: Automata) -> Automata:
     start.add_transition(b_mapping[b.initial_state().name], EPSILON)
 
     finals = list(new_automata.final_states())
-    end = new_automata.add_state(category=next(a.final_states()).category)
+    end = new_automata.add_state(category=a.category())
 
     for final in finals:
         make_final_go_to_other(final, end.name)
@@ -91,4 +91,19 @@ def concat(a: Automata, b: Automata) -> Automata:
 
 
 def star(a: Automata) -> Automata:
-    raise NotImplementedError()
+    automata = Automata()
+    start = automata.add_state()
+    mapping = incorporate(automata, a)
+
+    previous_initial = automata.states[mapping[a.initial_state().name]]
+    start.add_transition(previous_initial.name, EPSILON)
+
+    finals = list(automata.final_states())
+    end = automata.add_state(a.category())
+    for final in finals:
+        make_final_go_to_other(final, previous_initial.name)
+        make_final_go_to_other(final, end.name)
+
+    start.add_transition(end.name, EPSILON)
+
+    return automata

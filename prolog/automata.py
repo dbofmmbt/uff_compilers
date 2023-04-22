@@ -21,6 +21,9 @@ class Automata:
     def current_state(self) -> State:
         return self.states[self.current]
 
+    def category(self) -> str | None:
+        return next(self.final_states()).category
+
     def add_state(self, category: str | None = None) -> State:
         next_id = name(next(self.numbering_sequence))
         state = State(name=next_id, category=category)
