@@ -1,4 +1,4 @@
-from itertools import chain
+from prolog.state import State
 from .automata import Automata
 from .transition import EPSILON
 from .name import Name
@@ -47,8 +47,7 @@ def union(a: Automata, b: Automata) -> Automata:
     end = new_automata.add_state(category=next(a.final_states()).category)
 
     for final in finals:
-        final.add_transition(end.name, EPSILON)
-        final.category = None
+        make_final_go_to_other(final, end.name)
 
     return new_automata
 
@@ -71,8 +70,24 @@ def incorporate(new_automata: Automata, other: Automata) -> Mapping:
     return mapping
 
 
-def concatenation(a: Automata, b: Automata) -> Automata:
-    raise NotImplementedError()
+def make_final_go_to_other(final: State, target: Name):
+    final.add_transition(target, EPSILON)
+    final.category = None
+
+
+def concat(a: Automata, b: Automata) -> Automata:
+    automata = Automata()
+
+    incorporate(automata, a)
+
+    finals = list(automata.final_states())
+
+    b_mapping = incorporate(automata, b)
+
+    for final in finals:
+        make_final_go_to_other(final, b_mapping[b.initial_state().name])
+
+    return automata
 
 
 def star(a: Automata) -> Automata:
