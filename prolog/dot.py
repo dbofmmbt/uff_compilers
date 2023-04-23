@@ -1,8 +1,10 @@
+from itertools import count
 from typing import Tuple
 import graphviz
 from prolog import machines
 
 from prolog.machines import two_dots_dash
+from prolog.parse_tree import Tree, parse_tree
 from prolog.regular_expression import concat, star, union
 from prolog.state import State
 from .automata import Automata
@@ -105,6 +107,57 @@ def print_together():
 
 def print_star():
     print_automata(*map(star, two_simple_automatas()))
+
+
+def print_tree(tree: Tree):
+    graph = graphviz.Graph()
+    internal_node_count = count()
+    leaf_node_count = count(start=10_000)
+
+    def make_name(count):
+        return str(next(count))
+
+    root_name = make_name(internal_node_count)
+    nodes: list[Tuple[str, Tree.Child]] = [(root_name, tree)]
+    graph.node(root_name, label=f"r{root_name}")
+
+    while nodes:
+        current_name, current = nodes.pop(0)
+
+        if isinstance(current, str):
+            graph.node(name=current_name, label=current)
+        elif current is None:
+            pass
+        else:
+
+            def process_child(child: Tree.Child):
+                if child is None:
+                    return
+
+                if isinstance(child, Tree):
+                    child_count = internal_node_count
+                else:
+                    child_count = leaf_node_count
+
+                child_name = make_name(child_count)
+                nodes.append((child_name, child))
+
+                graph.node(child_name, label=f"r{child_name}")
+                graph.edge(current_name, child_name)
+
+            process_child(current.left)
+            process_child(current.center)
+            process_child(current.right)
+
+    graph.render(view=True)
+
+
+def print_parse_tree():
+    result = parse_tree("(a+b)*abb")
+    assert result is not None
+    tree, remainder = result
+    assert len(remainder) == 0
+    print_tree(tree)
 
 
 def print_all():
