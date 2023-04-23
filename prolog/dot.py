@@ -118,34 +118,29 @@ def print_tree(tree: Tree):
         return str(next(count))
 
     root_name = make_name(internal_node_count)
-    nodes: list[Tuple[str, Tree.Child]] = [(root_name, tree)]
-    graph.node(root_name, label=f"r{root_name}")
+    nodes: list[Tuple[str, Tree]] = [(root_name, tree)]
+    graph.node(root_name, label=tree.value or f"r{root_name}")
 
     while nodes:
         current_name, current = nodes.pop(0)
 
-        if current is None:
-            pass
-        else:
+        def process_child(child: Tree.Child):
+            if child is None:
+                return
 
-            def process_child(child: Tree.Child):
-                if child is None:
-                    return
+            child_count = (
+                internal_node_count if child.value is None else leaf_node_count
+            )
 
-                if child.value is None:
-                    child_count = internal_node_count
-                else:
-                    child_count = leaf_node_count
+            child_name = make_name(child_count)
+            nodes.append((child_name, child))
 
-                child_name = make_name(child_count)
-                nodes.append((child_name, child))
+            graph.node(child_name, label=child.value or f"r{child_name}")
+            graph.edge(current_name, child_name)
 
-                graph.node(child_name, label=child.value or f"r{child_name}")
-                graph.edge(current_name, child_name)
-
-            process_child(current.left)
-            process_child(current.center)
-            process_child(current.right)
+        process_child(current.left)
+        process_child(current.center)
+        process_child(current.right)
 
     graph.render(view=True)
 

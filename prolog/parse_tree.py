@@ -17,9 +17,8 @@ def concat(a: Tree.Child, b: Tree.Child) -> Tree:
 
 
 def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
-    current_tree = None
+    current_tree, current_input = initial_tree(regular_expression)
 
-    current_input = regular_expression
     while True:
         head, tail = current_input[0:1], current_input[1:]
 
@@ -52,11 +51,28 @@ def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
                 current_tree = concat(current_tree, Tree(value="*"))
                 current_input = tail
             case ")":
-                assert current_tree is not None
                 return current_tree, current_input
             case other:
                 current_tree = concat(current_tree, Tree(value=other))
                 current_input = tail
 
-    assert current_tree is not None
     return current_tree, ""
+
+
+def initial_tree(regular_expression: str) -> Tuple[Tree, str]:
+    head, tail = regular_expression[0:1], regular_expression[1:]
+
+    match head:
+        case "(":
+            result = parse_tree(tail)
+            assert result is not None, "missing center of ( expression"
+            sub_tree, remainder = result
+            assert remainder[0:1] == ")", "missing right paren"
+            return (
+                Tree(left=Tree(value="("), center=sub_tree, right=Tree(value=")")),
+                remainder[1:],
+            )
+        case "+", "*", "", ")":
+            raise Exception("not a valid regex")
+        case other:
+            return Tree(value=other), tail
