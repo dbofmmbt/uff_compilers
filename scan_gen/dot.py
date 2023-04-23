@@ -1,12 +1,12 @@
 from itertools import count
 from typing import Tuple
 import graphviz
-from prolog import machines
+from . import machines
 
-from prolog.machines import two_dots_dash
-from prolog.parse_tree import Tree, parse_tree
-from prolog.regular_expression import concat, star, union
-from prolog.state import State
+from .machines import two_dots_dash
+from .parse_tree import Tree, parse_tree
+from .regular_expression import concat, star, union
+from .state import State
 from .automata import Automata
 
 
@@ -164,7 +164,7 @@ def print_parse_tree():
 
 
 def print_all():
-    actions = ["together", "union", "concat"]
+    actions = ["together", "union", "concat", "star"]
 
     for action in actions:
         globals()[f"print_{action}"]()

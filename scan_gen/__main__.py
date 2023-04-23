@@ -1,5 +1,5 @@
 # letra minuscula
-from prolog import machines
+from . import machines
 
 
 def categories():

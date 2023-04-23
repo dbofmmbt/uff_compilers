@@ -1,4 +1,4 @@
-from prolog.state import State
+from .state import State
 from .automata import Automata
 from .transition import EPSILON
 from .name import Name
