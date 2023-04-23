@@ -124,9 +124,7 @@ def print_tree(tree: Tree):
     while nodes:
         current_name, current = nodes.pop(0)
 
-        if isinstance(current, str):
-            graph.node(name=current_name, label=current)
-        elif current is None:
+        if current is None:
             pass
         else:
 
@@ -134,7 +132,7 @@ def print_tree(tree: Tree):
                 if child is None:
                     return
 
-                if isinstance(child, Tree):
+                if child.value is None:
                     child_count = internal_node_count
                 else:
                     child_count = leaf_node_count
@@ -142,7 +140,7 @@ def print_tree(tree: Tree):
                 child_name = make_name(child_count)
                 nodes.append((child_name, child))
 
-                graph.node(child_name, label=f"r{child_name}")
+                graph.node(child_name, label=child.value or f"r{child_name}")
                 graph.edge(current_name, child_name)
 
             process_child(current.left)
