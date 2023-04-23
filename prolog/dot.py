@@ -109,38 +109,48 @@ def print_star():
     print_automata(*map(star, two_simple_automatas()))
 
 
-def print_tree(tree: Tree):
-    graph = graphviz.Graph()
+class TreeInfo:
     internal_node_count = count()
-    leaf_node_count = count(start=10_000)
+    leaf_node_count = count()
 
-    def make_name(count):
-        return str(next(count))
+    def __init__(self, tree: Tree):
+        self.tree = tree
 
-    root_name = make_name(internal_node_count)
-    nodes: list[Tuple[str, Tree]] = [(root_name, tree)]
-    graph.node(root_name, label=tree.value or f"r{root_name}")
+        if tree.value is None:
+            self.name = f"r{next(self.internal_node_count)}"
+            self.label = self.name
+        else:
+            self.name = str(next(self.leaf_node_count))
+            self.label = tree.value
+
+    def graph_node(self) -> dict:
+        return {"name": self.name, "label": self.label}
+
+
+def print_tree(root: Tree):
+    graph = graphviz.Graph()
+
+    root_info = TreeInfo(root)
+    graph.node(**root_info.graph_node())
+    nodes = [root_info]
 
     while nodes:
-        current_name, current = nodes.pop(0)
+        current = nodes.pop(0)
 
         def process_child(child: Tree.Child):
             if child is None:
                 return
 
-            child_count = (
-                internal_node_count if child.value is None else leaf_node_count
-            )
+            child_info = TreeInfo(child)
 
-            child_name = make_name(child_count)
-            nodes.append((child_name, child))
+            nodes.append(child_info)
 
-            graph.node(child_name, label=child.value or f"r{child_name}")
-            graph.edge(current_name, child_name)
+            graph.node(**child_info.graph_node())
+            graph.edge(current.name, child_info.name)
 
-        process_child(current.left)
-        process_child(current.center)
-        process_child(current.right)
+        process_child(current.tree.left)
+        process_child(current.tree.center)
+        process_child(current.tree.right)
 
     graph.render(view=True)
 
