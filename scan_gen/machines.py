@@ -1,7 +1,6 @@
 import itertools
 from string import ascii_lowercase, ascii_uppercase, digits
 
-from .name import Name, name
 from .state import State
 from .automata import Automata
 
