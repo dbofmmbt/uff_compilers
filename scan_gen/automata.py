@@ -45,9 +45,7 @@ class Automata:
             try:
                 symbol = next(iterator, "")
                 transition = next(
-                    filter(
-                        lambda t: t.trigger == symbol, self.current_state().transitions
-                    )
+                    t for t in self.current_state().transitions if t.trigger == symbol
                 )
                 self.current = transition.destination
                 word += symbol
