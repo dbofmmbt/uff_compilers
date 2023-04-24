@@ -5,7 +5,7 @@ from . import machines
 
 from .machines import two_dots_dash
 from .parse_tree import Tree, parse_tree
-from .regular_expression import concat, star, union
+from .automata_operations import concat, star, union
 from .state import State
 from .automata import Automata
 

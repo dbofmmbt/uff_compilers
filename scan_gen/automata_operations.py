@@ -4,34 +4,6 @@ from .transition import EPSILON
 from .name import Name
 
 
-def parse_expression(category: str, regular_expression: str) -> Automata:
-    automata = Automata()
-    start = automata.add_state(category=category)
-
-    for symbol in regular_expression:
-        match symbol:
-            case "(":
-                pass
-            case ")":
-                pass
-            case "|":
-                pass
-            case "*":
-                pass
-            case terminal:
-                terminal_automata = Automata()
-                terminal_start = terminal_automata.add_state()
-                terminal_end = terminal_automata.add_state(category=category)
-                terminal_automata.add_transition(
-                    terminal_start.name, terminal_end.name, terminal
-                )
-
-                for final in automata.final_states():
-                    automata.add_transition(final.name, terminal_start.name, EPSILON)
-
-    return automata
-
-
 def union(a: Automata, b: Automata) -> Automata:
     new_automata = Automata()
 
@@ -47,7 +19,7 @@ def union(a: Automata, b: Automata) -> Automata:
     end = new_automata.add_state(category=a.category())
 
     for final in finals:
-        make_final_go_to_other(final, end.name)
+        _make_final_go_to_other(final, end.name)
 
     return new_automata
 
@@ -70,7 +42,7 @@ def incorporate(new_automata: Automata, other: Automata) -> Mapping:
     return mapping
 
 
-def make_final_go_to_other(final: State, target: Name):
+def _make_final_go_to_other(final: State, target: Name):
     final.add_transition(target, EPSILON)
     final.category = None
 
@@ -85,7 +57,7 @@ def concat(a: Automata, b: Automata) -> Automata:
     b_mapping = incorporate(automata, b)
 
     for final in finals:
-        make_final_go_to_other(final, b_mapping[b.initial_state().name])
+        _make_final_go_to_other(final, b_mapping[b.initial_state().name])
 
     return automata
 
@@ -101,8 +73,8 @@ def star(a: Automata) -> Automata:
     finals = list(automata.final_states())
     end = automata.add_state(a.category())
     for final in finals:
-        make_final_go_to_other(final, previous_initial.name)
-        make_final_go_to_other(final, end.name)
+        _make_final_go_to_other(final, previous_initial.name)
+        _make_final_go_to_other(final, end.name)
 
     start.add_transition(end.name, EPSILON)
 
