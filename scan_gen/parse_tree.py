@@ -2,6 +2,13 @@ from dataclasses import dataclass
 from typing import Self, Tuple
 
 
+class Literal:
+    LEFT_PAREN = "("
+    RIGHT_PAREN = ")"
+    CLOSURE = "*"
+    UNION = "+"
+
+
 @dataclass
 class Tree:
     Child = Self | None
@@ -25,32 +32,28 @@ def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
         match head:
             case "":
                 break
-            case "(":
-                left = head
-                result = parse_tree(tail)
-                assert result is not None, "missing center of ( expression"
+            case Literal.LEFT_PAREN:
+                tree, remainder = paren_tree(current_input)
 
-                center, remainder = result
-                assert remainder[0:1] == ")", "missing right paren"
-                right = ")"
-
-                current_tree = concat(
-                    current_tree, Tree(Tree(value=left), center, Tree(value=right))
-                )
-                current_input = remainder[1:]
-            case "+":
+                current_tree = concat(current_tree, tree)
+                current_input = remainder
+            case Literal.UNION:
                 result = parse_tree(tail)
-                assert result is not None, "operator '+' must have right operand"
+                assert (
+                    result is not None
+                ), f"operator '{Literal.UNION}' must have right operand"
                 right_operand, remainder = result
 
                 current_tree = Tree(
-                    left=current_tree, center=Tree(value="+"), right=right_operand
+                    left=current_tree,
+                    center=Tree(value=Literal.UNION),
+                    right=right_operand,
                 )
                 current_input = remainder
-            case "*":
-                current_tree = concat(current_tree, Tree(value="*"))
+            case Literal.CLOSURE:
+                current_tree = concat(current_tree, Tree(value=Literal.CLOSURE))
                 current_input = tail
-            case ")":
+            case Literal.RIGHT_PAREN:
                 return current_tree, current_input
             case other:
                 current_tree = concat(current_tree, Tree(value=other))
@@ -59,20 +62,34 @@ def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
     return current_tree, ""
 
 
+def paren_tree(regular_expression: str) -> Tuple[Tree, str]:
+    head, tail = regular_expression[0:1], regular_expression[1:]
+
+    assert head == Literal.LEFT_PAREN
+
+    result = parse_tree(tail)
+    assert result is not None, "missing center of paren expression"
+    center, remainder = result
+
+    assert remainder[0:1] == Literal.RIGHT_PAREN, "missing right paren"
+
+    return (
+        Tree(
+            left=Tree(value=Literal.LEFT_PAREN),
+            center=center,
+            right=Tree(value=Literal.RIGHT_PAREN),
+        ),
+        remainder[1:],
+    )
+
+
 def initial_tree(regular_expression: str) -> Tuple[Tree, str]:
     head, tail = regular_expression[0:1], regular_expression[1:]
 
     match head:
-        case "(":
-            result = parse_tree(tail)
-            assert result is not None, "missing center of ( expression"
-            sub_tree, remainder = result
-            assert remainder[0:1] == ")", "missing right paren"
-            return (
-                Tree(left=Tree(value="("), center=sub_tree, right=Tree(value=")")),
-                remainder[1:],
-            )
-        case "+", "*", "", ")":
+        case Literal.LEFT_PAREN:
+            return paren_tree(regular_expression)
+        case Literal.UNION, Literal.CLOSURE, "", Literal.RIGHT_PAREN:
             raise Exception("not a valid regex")
         case other:
             return Tree(value=other), tail
