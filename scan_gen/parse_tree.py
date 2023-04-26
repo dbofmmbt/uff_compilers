@@ -18,12 +18,16 @@ class Tree:
     right: Child = None
     value: str | None = None
 
+    @property
+    def is_leaf(self) -> bool:
+        return self.value is not None
+
 
 def concat(a: Tree.Child, b: Tree.Child) -> Tree:
     return Tree(left=a, center=None, right=b)
 
 
-def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
+def parse_tree(regular_expression: str) -> Tuple[Tree, str]:
     current_tree, current_input = initial_tree(regular_expression)
 
     while True:
@@ -38,11 +42,7 @@ def parse_tree(regular_expression: str) -> Tuple[Tree, str] | None:
                 current_tree = concat(current_tree, tree)
                 current_input = remainder
             case Literal.UNION:
-                result = parse_tree(tail)
-                assert (
-                    result is not None
-                ), f"operator '{Literal.UNION}' must have right operand"
-                right_operand, remainder = result
+                right_operand, remainder = initial_tree(tail)
 
                 current_tree = Tree(
                     left=current_tree,
@@ -67,9 +67,7 @@ def paren_tree(regular_expression: str) -> Tuple[Tree, str]:
 
     assert head == Literal.LEFT_PAREN
 
-    result = parse_tree(tail)
-    assert result is not None, "missing center of paren expression"
-    center, remainder = result
+    center, remainder = parse_tree(tail)
 
     assert remainder[0:1] == Literal.RIGHT_PAREN, "missing right paren"
 
