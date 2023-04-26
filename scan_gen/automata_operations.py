@@ -1,5 +1,6 @@
 from .state import State
 from .automata import Automata
+from .state import CATEGORY_PLACEHOLDER
 from .transition import EPSILON
 from .name import Name
 
@@ -62,7 +63,7 @@ def concat(a: Automata, b: Automata) -> Automata:
     return automata
 
 
-def star(a: Automata) -> Automata:
+def closure(a: Automata) -> Automata:
     automata = Automata()
     start = automata.add_state()
     mapping = incorporate(automata, a)
@@ -77,5 +78,16 @@ def star(a: Automata) -> Automata:
         _make_final_go_to_other(final, end.name)
 
     start.add_transition(end.name, EPSILON)
+
+    return automata
+
+
+def unit(char: str) -> Automata:
+    automata = Automata()
+
+    state0 = automata.add_state()
+    state1 = automata.add_state(category=CATEGORY_PLACEHOLDER)
+
+    automata.add_transition(state0.name, state1.name, char)
 
     return automata

@@ -1,6 +1,9 @@
 from .transition import Transition
 from .name import Name
 
+"""Used when you know the state is final, but not the category it belongs yet"""
+CATEGORY_PLACEHOLDER = "__PLACEHOLDER__"
+
 
 class State:
     name: Name

@@ -1,12 +1,13 @@
 from typing import Tuple
 
 from scan_gen.regular_expression.processor import ParseTreeProcessor
+from ..regular_expression.processor.automata import AutomataProcessor
 
 from .automata import print_automata
 from .parse_tree import print_tree
 from .. import machines
 from ..machines import two_dots_dash
-from ..automata_operations import concat, star, union
+from ..automata_operations import concat, closure, union, unit
 from ..automata import Automata
 
 
@@ -25,12 +26,7 @@ def example_automatas():
 
 
 def _two_simple_automatas() -> Tuple[Automata, Automata]:
-    first = Automata()
-
-    state0 = first.add_state()
-    state1 = first.add_state(category="DOT")
-
-    first.add_transition(state0.name, state1.name, ".")
+    first = unit(".")
     second = two_dots_dash()
 
     return first, second
@@ -49,7 +45,13 @@ def print_together():
 
 
 def print_star():
-    print_automata(*map(star, _two_simple_automatas()))
+    print_automata(*map(closure, _two_simple_automatas()))
+
+
+def print_processor():
+    processor = AutomataProcessor("CATEGORIA BOLADA")
+    automata, _ = processor.process("(a+bc)*abb")
+    print_automata(automata)
 
 
 def print_parse_tree():
