@@ -72,11 +72,7 @@ def paren_tree(regular_expression: str) -> Tuple[Tree, str]:
     assert remainder[0:1] == Literal.RIGHT_PAREN, "missing right paren"
 
     return (
-        Tree(
-            left=Tree(value=Literal.LEFT_PAREN),
-            center=center,
-            right=Tree(value=Literal.RIGHT_PAREN),
-        ),
+        center,
         remainder[1:],
     )
 
