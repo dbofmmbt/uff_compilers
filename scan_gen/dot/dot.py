@@ -1,10 +1,11 @@
 from typing import Tuple
 
+from scan_gen.regular_expression.processor import ParseTreeProcessor
+
 from .automata import print_automata
 from .parse_tree import print_tree
 from .. import machines
 from ..machines import two_dots_dash
-from ..parse_tree import parse_tree
 from ..automata_operations import concat, star, union
 from ..automata import Automata
 
@@ -52,7 +53,8 @@ def print_star():
 
 
 def print_parse_tree():
-    result = parse_tree("(a+b)*abb")
+    processor = ParseTreeProcessor()
+    result = processor.process("(a+bc)*abb")
     assert result is not None
     tree, remainder = result
     assert len(remainder) == 0
