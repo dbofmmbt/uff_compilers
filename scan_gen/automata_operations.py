@@ -5,7 +5,7 @@ from .transition import EPSILON
 from .name import Name
 
 
-def union(a: Automata, b: Automata) -> Automata:
+def union(a: Automata, b: Automata, replace_finals=True) -> Automata:
     new_automata = Automata()
 
     start = new_automata.add_state()
@@ -16,11 +16,12 @@ def union(a: Automata, b: Automata) -> Automata:
     start.add_transition(a_mapping[a.initial_state().name], EPSILON)
     start.add_transition(b_mapping[b.initial_state().name], EPSILON)
 
-    finals = list(new_automata.final_states())
-    end = new_automata.add_state(category=a.category())
+    if replace_finals:
+        finals = list(new_automata.final_states())
+        end = new_automata.add_state(category=a.category())
 
-    for final in finals:
-        _make_final_go_to_other(final, end.name)
+        for final in finals:
+            _make_final_go_to_other(final, end.name)
 
     return new_automata
 
