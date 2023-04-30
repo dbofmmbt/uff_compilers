@@ -1,4 +1,5 @@
 from typing import Tuple
+from scan_gen.conversions import nfa_to_dfa
 
 from scan_gen.regular_expression.processor import ParseTreeProcessor
 from ..regular_expression.processor.automata import AutomataProcessor
@@ -48,15 +49,25 @@ def print_star():
     print_automata(*map(closure, _two_simple_automatas()))
 
 
-def print_processor():
+expression = "(a+bc)*abb"
+
+
+def print_nfa():
     processor = AutomataProcessor("CATEGORIA BOLADA")
-    automata, _ = processor.process("(a+bc)*abb")
+    automata, _ = processor.process(expression)
     print_automata(automata)
+
+
+def print_dfa():
+    processor = AutomataProcessor("CATEGORIA BOLADA")
+    automata, _ = processor.process(expression)
+
+    print_automata(nfa_to_dfa.Converter(automata).convert())
 
 
 def print_parse_tree():
     processor = ParseTreeProcessor()
-    result = processor.process("(a+bc)*abb")
+    result = processor.process(expression)
     assert result is not None
     tree, remainder = result
     assert len(remainder) == 0

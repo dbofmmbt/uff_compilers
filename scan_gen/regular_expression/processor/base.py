@@ -34,7 +34,7 @@ class Processor(Generic[T]):
                     current_state = self.concat(current_state, tree)
                     current_expression = remainder
                 case Literals.UNION:
-                    right_operand, remainder = self.process_first(tail)
+                    right_operand, remainder = self.process(tail)
 
                     current_state = self.union(current_state, right_operand)
                     current_expression = remainder
