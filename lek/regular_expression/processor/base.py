@@ -43,6 +43,9 @@ class Processor(Generic[T]):
                     current_expression = tail
                 case Literals.RIGHT_PAREN:
                     return current_state, current_expression
+                case Literals.ESCAPE:
+                    current_state = self.concat(current_state, self.unit(tail[0]))
+                    current_expression = tail[1:]
                 case other:
                     current_state = self.concat(current_state, self.unit(other))
                     current_expression = tail
@@ -71,5 +74,7 @@ class Processor(Generic[T]):
                 return self.process_paren(regular_expression)
             case Literals.UNION, Literals.CLOSURE, "", Literals.RIGHT_PAREN:
                 raise Exception("not a valid regex")
+            case Literals.ESCAPE:
+                return self.unit(tail[0]), tail[1:]
             case other:
                 return self.unit(other), tail

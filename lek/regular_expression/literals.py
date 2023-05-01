@@ -3,3 +3,4 @@ class Literals:
     RIGHT_PAREN = ")"
     CLOSURE = "*"
     UNION = "+"
+    ESCAPE = "\\"
