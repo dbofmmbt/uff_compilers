@@ -42,3 +42,31 @@ def test_multiply():
 
 def test_variable():
     check(simple_tokens, "foo", "VARIABLE foo")
+
+
+def test_math():
+    check(
+        simple_tokens,
+        "1 + 1",
+        """
+        NUMBER 1
+        SUM +
+        NUMBER 1
+        """,
+    )
+
+
+def test_complex_math():
+    check(
+        simple_tokens,
+        "2 * (4+5)",
+        """
+        NUMBER 2
+        MULTIPLY *
+        LEFT_PAREN (
+        NUMBER 4
+        SUM +
+        NUMBER 5
+        RIGHT_PAREN )
+        """,
+    )
