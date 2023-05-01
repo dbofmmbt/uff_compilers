@@ -44,8 +44,9 @@ class Processor(Generic[T]):
                 case Literals.RIGHT_PAREN:
                     return current_state, current_expression
                 case Literals.ESCAPE:
-                    current_state = self.concat(current_state, self.unit(tail[0]))
-                    current_expression = tail[1:]
+                    escape_result, remainder = self.process_escape(current_expression)
+                    current_state = self.concat(current_state, escape_result)
+                    current_expression = remainder
                 case other:
                     current_state = self.concat(current_state, self.unit(other))
                     current_expression = tail
@@ -66,6 +67,19 @@ class Processor(Generic[T]):
             remainder[1:],
         )
 
+    def process_escape(self, regular_expression: str) -> Tuple[T, str]:
+        escape_symbol, escaped, rest = (
+            regular_expression[0],
+            regular_expression[1],
+            regular_expression[2:],
+        )
+
+        assert escape_symbol == Literals.ESCAPE
+
+        match escaped:
+            case other:
+                return self.unit(other), rest
+
     def process_first(self, regular_expression: str) -> Tuple[T, str]:
         head, tail = regular_expression[0:1], regular_expression[1:]
 
@@ -75,6 +89,6 @@ class Processor(Generic[T]):
             case Literals.UNION, Literals.CLOSURE, "", Literals.RIGHT_PAREN:
                 raise Exception("not a valid regex")
             case Literals.ESCAPE:
-                return self.unit(tail[0]), tail[1:]
+                return self.process_escape(regular_expression)
             case other:
                 return self.unit(other), tail
