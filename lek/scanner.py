@@ -14,7 +14,8 @@ class Scanner:
 
         iter = input.__iter__()
 
-        while token := self.next_token(iter):
+        while result := self.next_token(iter):
+            token, iter = result
             tokens.append(token)
 
         self.dfa.current = self.dfa.initial_state().name
