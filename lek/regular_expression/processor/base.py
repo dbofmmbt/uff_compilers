@@ -1,4 +1,5 @@
-from typing import Callable, Generic, Tuple, TypeVar
+from string import ascii_lowercase, ascii_uppercase
+from typing import Callable, Generic, Iterable, Sequence, Tuple, TypeVar
 
 from ..literals import Literals
 
@@ -77,8 +78,20 @@ class Processor(Generic[T]):
         assert escape_symbol == Literals.ESCAPE
 
         match escaped:
+            case "a":
+                return self.symbols_union(ascii_lowercase), rest
+            case "A":
+                return self.symbols_union(ascii_uppercase), rest
             case other:
                 return self.unit(other), rest
+
+    def symbols_union(self, symbols: Sequence[str]) -> T:
+        current = self.unit(symbols[0])
+
+        for symbol in symbols[1:]:
+            current = self.union(current, self.unit(symbol))
+
+        return current
 
     def process_first(self, regular_expression: str) -> Tuple[T, str]:
         head, tail = regular_expression[0:1], regular_expression[1:]

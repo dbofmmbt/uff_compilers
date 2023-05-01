@@ -41,6 +41,5 @@ def test_multiply():
     check(simple_tokens, "*", "MULTIPLY *")
 
 
-@pytest.mark.xfail
 def test_variable():
     check(simple_tokens, "foo", "VARIABLE foo")
