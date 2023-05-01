@@ -7,9 +7,9 @@ prolog_spec = r"""
 LEFT_PAREN \( IDK
 RIGHT_PAREN \) IDK
 QUERY ?- IDK
-VARIABLE \A((\a+\A)*) IDK
-ATOM \a((\a+\A)*) IDK
-NUMBER (1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*) IDK
+VARIABLE \A(\a+\A)* IDK
+ATOM \a(\a+\A)* IDK
+NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
 """
 
 prolog_automata = spec_to_nfa.convert(prolog_spec.splitlines())

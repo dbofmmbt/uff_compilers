@@ -1,4 +1,3 @@
-import pytest
 from lek.conversions import nfa_to_dfa, spec_to_nfa
 from lek.scanner import Scanner
 from tests.util import check
@@ -9,8 +8,8 @@ LEFT_PAREN \( IDK
 RIGHT_PAREN \) IDK
 SUM \+ IDK
 MULTIPLY \* IDK
-NUMBER (1+2+3+4+5+6+7+8+9)((0+1+2+3+4+5+6+7+8+9)*) IDK
-VARIABLE \a((\a+\A)*) IDK
+NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
+VARIABLE \a(\a+\A)* IDK
 """
 
 tokens_automata = spec_to_nfa.convert(tokens_spec.splitlines())

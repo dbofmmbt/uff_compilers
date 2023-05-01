@@ -32,6 +32,10 @@ class Processor(Generic[T]):
                 case Literals.LEFT_PAREN:
                     tree, remainder = self.process_paren(current_expression)
 
+                    if remainder[0:1] == Literals.CLOSURE:
+                        tree = self.closure(tree)
+                        remainder = remainder[1:]
+
                     current_state = self.concat(current_state, tree)
                     current_expression = remainder
                 case Literals.UNION:
