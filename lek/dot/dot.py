@@ -1,7 +1,7 @@
 from typing import Tuple
-from scan_gen.conversions import nfa_to_dfa
+from lek.conversions import nfa_to_dfa
 
-from scan_gen.regular_expression.processor import ParseTreeProcessor
+from lek.regular_expression.processor import ParseTreeProcessor
 from ..regular_expression.processor.automata import AutomataProcessor
 
 from .automata import print_automata
