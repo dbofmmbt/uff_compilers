@@ -1,13 +1,18 @@
 import itertools
+from string import ascii_letters, punctuation, whitespace
+
 from typing import Iterator, Tuple
+
+from .spec import Spec
 
 from .token import Token
 from .automata import Automata
 
 
 class Scanner:
-    def __init__(self, dfa: Automata) -> None:
+    def __init__(self, dfa: Automata, spec: Spec) -> None:
         self.dfa = dfa
+        self.spec = spec
 
     def scan(self, input: str) -> list[Token]:
         tokens = []
@@ -41,6 +46,18 @@ class Scanner:
                 category = self.dfa.current_state().category
 
                 if category is not None:
+                    if not eval(
+                        self.spec.acceptance_code(category),
+                        {},
+                        {
+                            "next_symbol": symbol,
+                            "ascii_letters": ascii_letters,
+                            "whitespace": whitespace,
+                            "punctuation": punctuation,
+                        },
+                    ):
+                        raise Exception(f"Token rejected by spec: {word + symbol}")
+
                     return (
                         Token(category, word),
                         itertools.chain(symbol, iterator),

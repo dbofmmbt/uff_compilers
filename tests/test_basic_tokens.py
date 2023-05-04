@@ -1,15 +1,16 @@
+import pytest
 from lek.conversions import spec_to_scanner
 from tests.util import check
 
 
 tokens_spec = r"""
-IF if IDK
-LEFT_PAREN \( IDK
-RIGHT_PAREN \) IDK
-SUM \+ IDK
-MULTIPLY \* IDK
-NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
-VARIABLE \a(\a+\A)* IDK
+IF if
+LEFT_PAREN \(
+RIGHT_PAREN \)
+SUM \+
+MULTIPLY \*
+NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* "not (next_symbol and next_symbol in ascii_letters)"
+VARIABLE \a(\a+\A)*
 """
 
 simple_tokens = spec_to_scanner.convert(tokens_spec)
@@ -48,6 +49,13 @@ def test_words_with_if_preffix():
 
 def test_number():
     check(simple_tokens, "123", "NUMBER 123")
+
+
+def test_number_with_letter_in_the_end_is_rejected():
+    with pytest.raises(Exception) as err_info:
+        check(simple_tokens, "1a", "FAILS fails")
+
+    assert "rejected by spec" in err_info.value.args[0]
 
 
 def test_sum():

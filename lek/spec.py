@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class Entry:
     category: str
     expression: str
-    rejection_code: str
+    acceptance_code: str | None = None
 
 
 class Spec:
@@ -15,13 +15,23 @@ class Spec:
         stripped = map(lambda l: l.strip(), lines)
         lines = list(filter(lambda l: l != "", stripped))
 
-        self.entries = list(Entry(*line.split()) for line in lines)
+        entries = []
+
+        for line in lines:
+            category, expression, *rest = line.split()
+
+            rejection_code = " ".join(rest).strip('"')
+            entries.append(Entry(category, expression, rejection_code or None))
+
+        self.entries = entries
 
     def priority(self) -> list[str]:
         return list(e.category for e in self.entries)
 
-    def rejection_code(self, category: str) -> str:
-        return next(e.rejection_code for e in self.entries if e.category == category)
+    def acceptance_code(self, category: str) -> str:
+        return next(
+            e.acceptance_code or "True" for e in self.entries if e.category == category
+        )
 
     def __getitem__(self, item):
         return self.entries[item]

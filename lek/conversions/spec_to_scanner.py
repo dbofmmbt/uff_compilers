@@ -7,4 +7,4 @@ def convert(input: str):
     spec = Spec(input.splitlines())
     nfa = spec_to_nfa.convert(spec)
     dfa = nfa_to_dfa.Converter(nfa, spec).convert()
-    return Scanner(dfa)
+    return Scanner(dfa, spec)

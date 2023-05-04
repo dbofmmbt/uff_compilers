@@ -1,23 +1,19 @@
 import argparse
 
-from lek.conversions import nfa_to_dfa, spec_to_nfa
-
+from lek.conversions import spec_to_scanner
 import lek.io
-from ..spec import Spec
 
 
 parser = argparse.ArgumentParser("lek generator")
 parser.add_argument("input_path")
-parser.add_argument("automata_path")
+parser.add_argument("scanner_path")
 
 args = parser.parse_args()
 
 
 with open(args.input_path, "r") as f:
-    lines = f.readlines()
+    input = f.read()
 
-spec = Spec(lines)
-automata = spec_to_nfa.convert(spec)
-automata = nfa_to_dfa.Converter(automata, spec).convert()
+scanner = spec_to_scanner.convert(input)
 
-lek.io.save(automata, args.automata_path)
+lek.io.save(scanner, args.scanner_path)

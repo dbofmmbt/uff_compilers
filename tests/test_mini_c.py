@@ -3,30 +3,30 @@ from tests.util import check
 
 
 mini_c_spec = r"""
-COMPARE ==+<+>+<=+>=+!= IDK
-IF if IDK
-ELSE else IDK
+COMPARE ==+<+>+<=+>=+!=
+IF if
+ELSE else
 
-LEFT_CURLY_BRACKET { IDK
-RIGHT_CURLY_BRACKET } IDK
-LEFT_PAREN \( IDK
-RIGHT_PAREN \) IDK
-COMMA , IDK
-SEMICOLON ; IDK
-ASSIGN = IDK
+LEFT_CURLY_BRACKET {
+RIGHT_CURLY_BRACKET }
+LEFT_PAREN \(
+RIGHT_PAREN \)
+COMMA ,
+SEMICOLON ;
+ASSIGN =
 
-FOR for IDK
-WHILE while IDK
+FOR for
+WHILE while
 
-PLUS \+ IDK
-MINUS - IDK
-MULT \* IDK
-DIV / IDK
+PLUS \+
+MINUS -
+MULT \*
+DIV /
 
-TYPE (int)+(float) IDK
-NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
-FLOAT (0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* IDK
-ID (\a+\A+_)(\a+\A+_+0+1+2+3+4+5+6+7+8+9)* IDK
+TYPE (int)+(float)
+NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* "not (next_symbol and next_symbol in ascii_letters)"
+FLOAT (0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* "not (next_symbol and next_symbol in ascii_letters)"
+ID (\a+\A+_)(\a+\A+_+0+1+2+3+4+5+6+7+8+9)*
 """
 
 mini_c = spec_to_scanner.convert(mini_c_spec)
