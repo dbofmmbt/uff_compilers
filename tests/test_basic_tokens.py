@@ -1,5 +1,4 @@
-from lek.conversions import nfa_to_dfa, spec_to_nfa
-from lek.scanner import Scanner
+from lek.conversions import spec_to_scanner
 from tests.util import check
 
 
@@ -13,9 +12,7 @@ NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
 VARIABLE \a(\a+\A)* IDK
 """
 
-tokens_automata = spec_to_nfa.convert(tokens_spec.splitlines())
-tokens_automata = nfa_to_dfa.Converter(tokens_automata).convert()
-simple_tokens = Scanner(tokens_automata)
+simple_tokens = spec_to_scanner.convert(tokens_spec)
 
 
 def test_parens():

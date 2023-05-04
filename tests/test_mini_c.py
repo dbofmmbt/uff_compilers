@@ -1,6 +1,5 @@
-from lek.conversions import nfa_to_dfa, spec_to_nfa
+from lek.conversions import spec_to_scanner
 from tests.util import check
-from lek.scanner import Scanner
 
 
 mini_c_spec = r"""
@@ -30,9 +29,7 @@ FLOAT (0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* IDK
 ID (\a+\A+_)(\a+\A+_+0+1+2+3+4+5+6+7+8+9)* IDK
 """
 
-mini_c_automata = spec_to_nfa.convert(mini_c_spec.splitlines())
-mini_c_automata = nfa_to_dfa.Converter(mini_c_automata).convert()
-mini_c = Scanner(mini_c_automata)
+mini_c = spec_to_scanner.convert(mini_c_spec)
 
 
 def test_hello_world():

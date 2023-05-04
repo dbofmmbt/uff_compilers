@@ -1,14 +1,16 @@
-from contextlib import suppress
 from string import printable
-from typing import Iterable, Tuple
+from typing import Tuple
+
+from ..spec import Spec
 from ..name import Name
 from ..transition import EPSILON
 from ..automata import Automata
 
 
 class Converter:
-    def __init__(self, nfa: Automata):
+    def __init__(self, nfa: Automata, spec: Spec):
         self.nfa = nfa
+        self.spec = spec
 
     def convert(self) -> Automata:
         dfa = Automata()
@@ -18,8 +20,8 @@ class Converter:
             set_categories = set(self.nfa.states[name].category for name in state_set)
 
             first_in_priority = None
-            # checking in asceding order
-            for category in self.nfa.category_priority:
+            # checking in priority order
+            for category in self.spec.priority():
                 if category in set_categories:
                     first_in_priority = category
                     break

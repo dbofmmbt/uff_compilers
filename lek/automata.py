@@ -9,7 +9,6 @@ class Automata:
     states: dict[Name, State]
     current = name(0)
     numbering_sequence: itertools.count
-    category_priority: list[str]
 
     def __init__(self):
         self.states = {}
