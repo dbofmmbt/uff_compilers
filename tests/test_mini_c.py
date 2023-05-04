@@ -4,11 +4,6 @@ from lek.scanner import Scanner
 
 
 mini_c_spec = r"""
-NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
-FLOAT (0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9) IDK
-ID (\a+\A+_)(\a+\A+_+0+1+2+3+4+5+6+7+8+9)* IDK
-TYPE (int)+(float) IDK
-
 COMPARE ==+<+>+<=+>=+!= IDK
 IF if IDK
 ELSE else IDK
@@ -28,6 +23,11 @@ PLUS \+ IDK
 MINUS - IDK
 MULT \* IDK
 DIV / IDK
+
+TYPE (int)+(float) IDK
+NUMBER (1+2+3+4+5+6+7+8+9)(0+1+2+3+4+5+6+7+8+9)* IDK
+FLOAT (0+1+2+3+4+5+6+7+8+9)*.(0+1+2+3+4+5+6+7+8+9)* IDK
+ID (\a+\A+_)(\a+\A+_+0+1+2+3+4+5+6+7+8+9)* IDK
 """
 
 mini_c_automata = spec_to_nfa.convert(mini_c_spec.splitlines())

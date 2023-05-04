@@ -4,6 +4,7 @@ from tests.util import check
 
 
 tokens_spec = r"""
+IF if IDK
 LEFT_PAREN \( IDK
 RIGHT_PAREN \) IDK
 SUM \+ IDK
@@ -24,6 +25,26 @@ def test_parens():
         """
         LEFT_PAREN (
         RIGHT_PAREN )
+        """,
+    )
+
+
+def test_if_is_recognized_as_IF():
+    check(
+        simple_tokens,
+        "if",
+        """
+        IF if
+        """,
+    )
+
+
+def test_words_with_if_preffix():
+    check(
+        simple_tokens,
+        "ifabc",
+        """
+        VARIABLE ifabc
         """,
     )
 

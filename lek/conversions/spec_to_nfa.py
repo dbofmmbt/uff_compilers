@@ -20,4 +20,6 @@ def convert(lines: list[str]):
         current = make_automata(line)
         automata = union(automata, current, replace_finals=False)
 
+    automata.category_priority = list(l.split()[0] for l in lines)
+
     return automata

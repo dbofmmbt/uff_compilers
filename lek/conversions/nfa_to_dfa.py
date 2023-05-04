@@ -12,14 +12,22 @@ class Converter:
 
     def convert(self) -> Automata:
         dfa = Automata()
-        finals: set[Name] = set(final.name for final in self.nfa.final_states())
         mapping: dict[frozenset[Name], Name] = dict()
 
         def propagate_final(state_set: frozenset[Name]):
-            with suppress(StopIteration):
-                first_final = next(name for name in state_set if name in finals)
-                state_in_dfa = dfa.states[mapping[state_set]]
-                state_in_dfa.category = self.nfa.states[first_final].category
+            set_categories = set(self.nfa.states[name].category for name in state_set)
+
+            first_in_priority = None
+            # checking in asceding order
+            for category in self.nfa.category_priority:
+                if category in set_categories:
+                    first_in_priority = category
+                    break
+            if first_in_priority is None:
+                return
+
+            state_in_dfa = dfa.states[mapping[state_set]]
+            state_in_dfa.category = first_in_priority
 
         def ensure_state_is_mapped(state_set: frozenset[Name]):
             if mapping.get(state_set) is None:
