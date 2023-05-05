@@ -1,9 +1,9 @@
 Function      ->  Type identifier ( ArgList ) CompoundStmt
 
-# left recursion
-ArgList       ->  Arg
-                  | ArgList , Arg
+ArgList       ->  Arg ArgList2
 
+ArgList2      ->  , Arg ArgList2
+                  | ε
 
 Arg           ->  Type identifier
 Declaration   ->  Type IdentList ;
@@ -27,34 +27,28 @@ ElsePart      ->  else Stmt
                   | ε
 CompoundStmt  ->  { StmtList }
 
-# left recursion
-StmtList      ->  StmtList Stmt
+StmtList      ->  Stmt StmtList
                   | ε
-
 
 Expr          ->  identifier = Expr
                   | Rvalue
 
+Rvalue -> Mag Rvalue2
 
-# left recursion
-Rvalue        ->  Rvalue Compare Mag
-                  | Mag
-
+Rvalue2 -> compare mag Rvalue2
+           | ε
 
 Compare       ->  == | < | > | <= | >= | !=
 
+Mag           ->  Term Mag2
+Mag2          ->  + Term Mag2
+                  | - Term Mag2
+                  | ε
 
-# left recursion
-Mag           ->  Mag + Term
-                  | Mag - Term
-                  | Term
-
-
-# left recursion
-Term          ->  Term * Factor
-                  | Term / Factor
-                  | Factor
-
+Term          ->  Factor Term2
+Term2         ->  * Factor Term2
+                  | / Factor Term2
+                  | ε
 
 Factor        ->  ( Expr )
                   | - Factor
