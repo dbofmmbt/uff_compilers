@@ -1,4 +1,4 @@
-from typing import Self
+from typing import Iterator, Self
 
 
 class Tree:
@@ -30,3 +30,12 @@ class Tree:
             i += 1
 
         return self.ancestor.next_sibling()
+
+    def leaves(self) -> Iterator[Self]:
+        if not self.children:
+            yield self
+            return
+        
+        for child in self.children:
+            for leave in child.leaves():
+                yield leave

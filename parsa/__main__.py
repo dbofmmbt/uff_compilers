@@ -104,3 +104,20 @@ class Parser:
 tree = Parser().parse(TokenStream(tokens))
 
 print_ast(tree)
+
+ident = 0
+for leave in tree.leaves():
+    match leave.content:
+        case "{":
+            ident += 4
+        case "}":
+            ident -= 4
+
+    if leave.content in "}":
+        print("\n" + " " * ident, end="")
+
+    print(leave.content, end=" ")
+
+    if leave.content in "{;":
+        print("\n" + " " * ident, end="")
+print()
