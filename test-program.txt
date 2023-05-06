@@ -1,0 +1,6 @@
+int main (int i) {
+  while (term>eps)
+  {
+    n = n + 2;
+  }
+}

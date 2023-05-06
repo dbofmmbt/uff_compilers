@@ -113,7 +113,7 @@ look_ahead_table = {
         "!=": 5,
     },
     "Term": {
-        "identfier": 0,
+        "identifier": 0,
         "(": 0,
         "+": 0,
         "-": 0,

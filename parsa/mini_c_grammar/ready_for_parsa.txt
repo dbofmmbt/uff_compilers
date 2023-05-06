@@ -1,4 +1,4 @@
-Function -> Type identifier ( ArgList ) CompoundStmt $
+Function -> Type identifier ( ArgList ) CompoundStmt
 
 ArgList -> Arg ArgList2
 
