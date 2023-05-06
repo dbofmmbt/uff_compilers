@@ -1,57 +1,72 @@
-Function      ->  Type identifier ( ArgList ) CompoundStmt
+Function -> Type identifier ( ArgList ) CompoundStmt
 
-ArgList       ->  Arg ArgList2
+ArgList -> Arg ArgList2
 
-ArgList2      ->  , Arg ArgList2
-                  | ε
+ArgList2 -> , Arg ArgList2
+ArgList2 -> ε
 
-Arg           ->  Type identifier
-Declaration   ->  Type IdentList ;
-Type          ->  int
-                  | float
-IdentList     ->  identifier , IdentList
-                  | identifier
-Stmt          ->  ForStmt
-                  | WhileStmt
-                  | Expr ;
-                  | IfStmt
-                  | CompoundStmt
-                  | Declaration
-                  | ;
-ForStmt       ->  for ( Expr ; OptExpr ; OptExpr ) Stmt
-OptExpr       ->  Expr
-                  | ε
-WhileStmt     ->  while ( Expr ) Stmt
-IfStmt        ->  if ( Expr ) Stmt ElsePart
-ElsePart      ->  else Stmt
-                  | ε
-CompoundStmt  ->  { StmtList }
+Arg -> Type identifier
+Declaration -> Type IdentList ;
 
-StmtList      ->  Stmt StmtList
-                  | ε
+Type -> int
+Type -> float
 
-Expr          ->  identifier = Expr
-                  | Rvalue
+IdentList -> identifier , IdentList
+IdentList -> identifier
+
+Stmt -> ForStmt
+Stmt -> WhileStmt
+Stmt -> Expr ;
+Stmt -> IfStmt
+Stmt -> CompoundStmt
+Stmt -> Declaration
+Stmt -> ;
+
+ForStmt -> for ( Expr ; OptExpr ; OptExpr ) Stmt
+
+OptExpr -> Expr
+OptExpr -> ε
+
+WhileStmt -> while ( Expr ) Stmt
+IfStmt -> if ( Expr ) Stmt ElsePart
+
+ElsePart -> else Stmt
+ElsePart -> ε
+
+CompoundStmt -> { StmtList }
+
+StmtList -> Stmt StmtList
+StmtList -> ε
+
+Expr -> identifier = Expr
+Expr -> Rvalue
 
 Rvalue -> Mag Rvalue2
 
 Rvalue2 -> compare mag Rvalue2
-           | ε
+Rvalue2 -> ε
 
-Compare       ->  == | < | > | <= | >= | !=
+Compare -> == 
+Compare -> < 
+Compare -> > 
+Compare -> <= 
+Compare -> >= 
+Compare -> !=
 
-Mag           ->  Term Mag2
-Mag2          ->  + Term Mag2
-                  | - Term Mag2
-                  | ε
+Mag -> Term Mag2
 
-Term          ->  Factor Term2
-Term2         ->  * Factor Term2
-                  | / Factor Term2
-                  | ε
+Mag2 -> + Term Mag2
+Mag2 -> - Term Mag2
+Mag2 -> ε
 
-Factor        ->  ( Expr )
-                  | - Factor
-                  | + Factor
-                  | identifier
-                  | number
+Term -> Factor Term2
+
+Term2 -> * Factor Term2
+Term2 -> / Factor Term2
+Term2 -> ε
+
+Factor -> ( Expr )
+Factor -> - Factor
+Factor -> + Factor
+Factor -> identifier
+Factor -> number
