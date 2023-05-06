@@ -1,9 +1,9 @@
-Function -> Type identifier ( ArgList ) CompoundStmt
+Function -> Type identifier ( ArgList ) CompoundStmt $
 
 ArgList -> Arg ArgList2
 
 ArgList2 -> , Arg ArgList2
-ArgList2 -> ε
+ArgList2 -> epsilon
 
 Arg -> Type identifier
 Declaration -> Type IdentList ;
@@ -11,8 +11,10 @@ Declaration -> Type IdentList ;
 Type -> int
 Type -> float
 
-IdentList -> identifier , IdentList
-IdentList -> identifier
+IdentList -> identifier IdentList2
+
+IdentList2 -> , identifier IdentList2
+IdentList2 -> epsilon
 
 Stmt -> ForStmt
 Stmt -> WhileStmt
@@ -25,26 +27,26 @@ Stmt -> ;
 ForStmt -> for ( Expr ; OptExpr ; OptExpr ) Stmt
 
 OptExpr -> Expr
-OptExpr -> ε
+OptExpr -> epsilon
 
 WhileStmt -> while ( Expr ) Stmt
 IfStmt -> if ( Expr ) Stmt ElsePart
 
 ElsePart -> else Stmt
-ElsePart -> ε
+ElsePart -> epsilon
 
 CompoundStmt -> { StmtList }
 
 StmtList -> Stmt StmtList
-StmtList -> ε
+StmtList -> epsilon
 
 Expr -> identifier = Expr
 Expr -> Rvalue
 
 Rvalue -> Mag Rvalue2
 
-Rvalue2 -> compare mag Rvalue2
-Rvalue2 -> ε
+Rvalue2 -> Compare Mag Rvalue2
+Rvalue2 -> epsilon
 
 Compare -> == 
 Compare -> < 
@@ -57,13 +59,13 @@ Mag -> Term Mag2
 
 Mag2 -> + Term Mag2
 Mag2 -> - Term Mag2
-Mag2 -> ε
+Mag2 -> epsilon
 
 Term -> Factor Term2
 
 Term2 -> * Factor Term2
 Term2 -> / Factor Term2
-Term2 -> ε
+Term2 -> epsilon
 
 Factor -> ( Expr )
 Factor -> - Factor

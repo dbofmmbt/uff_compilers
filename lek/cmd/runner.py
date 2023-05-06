@@ -12,4 +12,10 @@ scanner = lek.io.load(args.scanner_path)
 
 with open(args.program_path, "r") as program:
     tokens = scanner.scan(program.read())
-    print(tokens)
+
+    out = []
+
+    for token in tokens:
+        out.append(token.category)
+
+    print(out)
