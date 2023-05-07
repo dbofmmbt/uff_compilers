@@ -18,17 +18,59 @@ for rule in rules:
         non_terminal_rules.append(right)
 
 END = "$"
-
+FOLLOW_KEY = "__follow"
 look_ahead_table = {
-    "Function": {"int": 0, "float": 0},
-    "Type": {"int": 0, "float": 1},
-    "ArgList": {"int": 0, "float": 0},
-    "CompoundStmt": {"{": 0},
-    "Arg": {"int": 0, "float": 0},
-    "ArgList2": {",": 0, ")": 1},
-    "Declaration": {"int": 0, "float": 0},
-    "IdentList": {"identifier": 0},
-    "IdentList2": {",": 0, ";": 1},
+    "Function": {"int": 0, "float": 0, FOLLOW_KEY: set()},
+    "Type": {"int": 0, "float": 1, FOLLOW_KEY: set(["identifier"])},
+    "ArgList": {"int": 0, "float": 0, FOLLOW_KEY: set([")"])},
+    "CompoundStmt": {
+        "{": 0,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                "$",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
+    },
+    "Arg": {"int": 0, "float": 0, FOLLOW_KEY: set([")" ","])},
+    "ArgList2": {",": 0, ")": 1, FOLLOW_KEY: set([")" ","])},
+    "Declaration": {
+        "int": 0,
+        "float": 0,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
+    },
+    "IdentList": {"identifier": 0, FOLLOW_KEY: set([";"])},
+    "IdentList2": {",": 0, ";": 1, FOLLOW_KEY: set([";"])},
     "Stmt": {
         "identifier": 2,
         "(": 2,
@@ -42,9 +84,67 @@ look_ahead_table = {
         "+": 2,
         "-": 2,
         "number": 2,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
     },
-    "ForStmt": {"for": 0},
-    "WhileStmt": {"while": 0},
+    "ForStmt": {
+        "for": 0,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
+    },
+    "WhileStmt": {
+        "while": 0,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
+    },
     "Expr": {
         # Checar com o professor oq fazer, pq identifier pode estar nas 2 regras
         "identifier": 0,
@@ -52,8 +152,29 @@ look_ahead_table = {
         "+": 1,
         "-": 1,
         "number": 1,
+        FOLLOW_KEY: set([")", ";"]),
     },
-    "IfStmt": {"if": 0},
+    "IfStmt": {
+        "if": 0,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
+    },
     "OptExpr": {
         "identifier": 0,
         "(": 0,
@@ -62,6 +183,7 @@ look_ahead_table = {
         "number": 0,
         ")": 1,
         ";": 1,
+        FOLLOW_KEY: set([")", ";"]),
     },
     "ElsePart": {
         "else": 0,
@@ -79,6 +201,24 @@ look_ahead_table = {
         "+": 1,
         "-": 1,
         "number": 1,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                ";",
+                "int",
+                "float",
+                "for",
+                "while",
+                "if",
+                "else",
+                "{",
+                "}",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
     },
     "StmtList": {
         "identifier": 0,
@@ -94,16 +234,35 @@ look_ahead_table = {
         "-": 0,
         "number": 0,
         "}": 1,
+        FOLLOW_KEY: set(["}"]),
     },
-    "Rvalue": {"identifier": 0, "(": 0, "+": 0, "-": 0, "number": 0},
+    "Rvalue": {
+        "identifier": 0,
+        "(": 0,
+        "+": 0,
+        "-": 0,
+        "number": 0,
+        FOLLOW_KEY: set([")", ";"]),
+    },
     "Mag": {
         "identifier": 0,
         "(": 0,
         "+": 0,
         "-": 0,
         "number": 0,
+        FOLLOW_KEY: set([")", ";", "==", "<", ">", "<=", ">=", "!="]),
     },
-    "Rvalue2": {"==": 0, "<": 0, ">": 0, "<=": 0, ">=": 0, "!=": 0, ")": 1, ";": 1},
+    "Rvalue2": {
+        "==": 0,
+        "<": 0,
+        ">": 0,
+        "<=": 0,
+        ">=": 0,
+        "!=": 0,
+        ")": 1,
+        ";": 1,
+        FOLLOW_KEY: set([")", ";"]),
+    },
     "Compare": {
         "==": 0,
         "<": 1,
@@ -111,6 +270,15 @@ look_ahead_table = {
         "<=": 3,
         ">=": 4,
         "!=": 5,
+        FOLLOW_KEY: set(
+            [
+                "identifier",
+                "(",
+                "+",
+                "-",
+                "number",
+            ]
+        ),
     },
     "Term": {
         "identifier": 0,
@@ -118,6 +286,7 @@ look_ahead_table = {
         "+": 0,
         "-": 0,
         "number": 0,
+        FOLLOW_KEY: set([")", ";", "==", "<", ">", "<=", ">=", "!=", "+", "-"]),
     },
     "Mag2": {
         "+": 0,
@@ -130,6 +299,18 @@ look_ahead_table = {
         "<=": 2,
         ">=": 2,
         "!=": 2,
+        FOLLOW_KEY: set(
+            [
+                ")",
+                ";",
+                "==",
+                "<",
+                ">",
+                "<=",
+                ">=",
+                "!=",
+            ]
+        ),
     },
     "Factor": {
         "(": 0,
@@ -137,6 +318,22 @@ look_ahead_table = {
         "+": 2,
         "identifier": 3,
         "number": 4,
+        FOLLOW_KEY: set(
+            [
+                ")",
+                ";",
+                "==",
+                "<",
+                ">",
+                "<=",
+                ">=",
+                "!=",
+                "+",
+                "-",
+                "*",
+                "/",
+            ]
+        ),
     },
     "Term2": {
         "*": 0,
@@ -151,12 +348,14 @@ look_ahead_table = {
         "!=": 2,
         "+": 2,
         "-": 2,
+        FOLLOW_KEY: set([")", ";", "==", "<", ">", "<=", ">=", "!=", "+", "-"]),
     },
 }
 
 for non_terminal, terminals in look_ahead_table.items():
     for terminal, rule in terminals.items():
-        look_ahead_table[non_terminal][terminal] = grammar[non_terminal][rule]  # type: ignore
+        if type(rule) is int:
+            look_ahead_table[non_terminal][terminal] = grammar[non_terminal][rule]  # type: ignore
 
 look_ahead_table = typing.cast(dict[str, dict[str, list[str]]], look_ahead_table)
 
