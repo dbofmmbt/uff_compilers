@@ -6,15 +6,11 @@ from .stack import Stack
 from .dot import print_ast
 
 from .ast import Tree
-from .look_ahead_table import END, look_ahead_table, grammar
+from .look_ahead_table import END, FOLLOW_KEY, look_ahead_table, grammar
 
 
 def is_terminal(x):
     return look_ahead_table.get(x) == None
-
-
-def error():
-    raise Exception()
 
 
 if len(sys.argv) > 1:
@@ -40,7 +36,10 @@ class TokenStream:
 
 
 class Parser:
-    def parse(self, stream: TokenStream) -> Tree:
+    def __init__(self) -> None:
+        self.errors = []
+
+    def parse(self, stream: TokenStream) -> Tree | list[str]:
         first_rule = "Function"
         self.tree = Tree(first_rule)
         self.stack = Stack(END, first_rule)
@@ -49,10 +48,10 @@ class Parser:
         while self.stack.top() != END and self.stream.next() != END:
             self.evaluate_next()
 
-        if self.stack.top() == self.stream.next():
+        if self.stack.top() == self.stream.next() and not self.errors:
             print("GG")
         else:
-            error()
+            return self.errors
 
         while self.tree.ancestor:
             self.tree = self.tree.ancestor
@@ -67,11 +66,22 @@ class Parser:
             return
 
         if is_terminal(self.stack.top()):
-            return error()
+            self.error(f"input `{self.stream.next()}` != stack `{self.stack.top()}`")
+            self.stream.advance()
+            return
 
         next_rule = look_ahead_table[self.stack.top()].get(self.stream.next())
         if next_rule is None:
-            return error()
+            self.error(
+                f"missing rule for stack `{self.stack.top()}` input `{self.stream.next()}`)"
+            )
+
+            if self.stream.next() in look_ahead_table[self.stack.top()][FOLLOW_KEY]:
+                self.stack.pop()
+            else:
+                self.stream.advance()
+
+            return
 
         if next_rule == ["epsilon"]:
             self.stack.pop()
@@ -100,24 +110,32 @@ class Parser:
 
         return rule
 
+    def error(self, error):
+        self.errors.append(error)
 
-tree = Parser().parse(TokenStream(tokens))
 
-print_ast(tree)
+result = Parser().parse(TokenStream(tokens))
 
-ident = 0
-for leave in tree.leaves():
-    match leave.content:
-        case "{":
-            ident += 4
-        case "}":
-            ident -= 4
+if type(result) is Tree:
+    print_ast(result)
 
-    if leave.content in "}":
-        print("\n" + " " * ident, end="")
+    ident = 0
+    for leave in result.leaves():
+        match leave.content:
+            case "{":
+                ident += 4
+            case "}":
+                ident -= 4
 
-    print(leave.content, end=" ")
+        if leave.content in "}":
+            print("\n" + " " * ident, end="")
 
-    if leave.content in "{;":
-        print("\n" + " " * ident, end="")
-print()
+        print(leave.content, end=" ")
+
+        if leave.content in "{;":
+            print("\n" + " " * ident, end="")
+    print()
+elif type(result) is list:
+    print("\nErrors found by the parser:")
+    for error in result:
+        print(f"    - {error}")

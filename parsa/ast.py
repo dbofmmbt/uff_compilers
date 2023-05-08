@@ -35,7 +35,7 @@ class Tree:
         if not self.children:
             yield self
             return
-        
+
         for child in self.children:
             for leave in child.leaves():
                 yield leave
