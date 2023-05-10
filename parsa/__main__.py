@@ -86,9 +86,7 @@ class Parser:
         if next_rule == ["epsilon"]:
             self.stack.pop()
 
-            if self.tree.ancestor and not self.tree.children:
-                # Remove rule that turned out to be empty from ancestor
-                self.tree.ancestor.children.remove(self.tree)
+            self.tree.child("ε")
 
             self.tree = self.tree.next_sibling() or self.tree
 
