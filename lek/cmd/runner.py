@@ -16,6 +16,6 @@ with open(args.program_path, "r") as program:
     out = []
 
     for token in tokens:
-        out.append(token.category)
+        out.append([token.category, token.value, token.line])
 
     print(out)

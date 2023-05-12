@@ -1,3 +1,4 @@
+from typing import Tuple
 from pathlib import Path
 import sys
 
@@ -13,22 +14,24 @@ def is_terminal(x):
     return look_ahead_table.get(x) == None
 
 
+TokenInput = Tuple[str, str, int]
+
 if len(sys.argv) > 1:
     print(f"getting tokens from file {sys.argv[1]}")
     tokens = eval(Path(sys.argv[1]).read_text().strip())
 else:
-    tokens: list[str] = eval(input("getting tokens from stdin"))
+    tokens: list[TokenInput] = eval(input("getting tokens from stdin"))
 
 
-tokens.append(END)
+tokens.append((END, END, 0))
 
 
 class TokenStream:
-    def __init__(self, tokens: list[str]) -> None:
+    def __init__(self, tokens: list[TokenInput]) -> None:
         self.tokens = tokens
         self.position = -1
 
-    def next(self, by=1) -> str:
+    def next(self, by=1) -> TokenInput:
         return self.tokens[self.position + by]
 
     def advance(self):
@@ -45,10 +48,10 @@ class Parser:
         self.stack = Stack(END, first_rule)
         self.stream = stream
 
-        while self.stack.top() != END and self.stream.next() != END:
+        while self.stack.top() != END and self.stream.next()[0] != END:
             self.evaluate_next()
 
-        if self.stack.top() == self.stream.next() and not self.errors:
+        if self.stack.top() == self.stream.next()[0] and not self.errors:
             print("GG")
         else:
             return self.errors
@@ -59,7 +62,7 @@ class Parser:
         return self.tree
 
     def evaluate_next(self):
-        if self.stack.top() == self.stream.next():
+        if self.stack.top() == self.stream.next()[0]:
             self.stack.pop()
             self.stream.advance()
             self.tree = self.tree.next_sibling() or self.tree
@@ -70,7 +73,7 @@ class Parser:
             self.stream.advance()
             return
 
-        next_rule = look_ahead_table[self.stack.top()].get(self.stream.next())
+        next_rule = look_ahead_table[self.stack.top()].get(self.stream.next()[0])
         if next_rule is None:
             expected_symbols = [
                 symbol
@@ -79,10 +82,10 @@ class Parser:
             ]
 
             self.error(
-                f"Found `{self.stream.next()}`, expected one of {{ {' '.join(expected_symbols)} }}"
+                f"On Line {self.stream.next()[2]} found `{self.stream.next()[0]}`, expected one of {{ {' '.join(expected_symbols)} }}"
             )
 
-            if self.stream.next() in look_ahead_table[self.stack.top()][FOLLOW_KEY]:
+            if self.stream.next()[0] in look_ahead_table[self.stack.top()][FOLLOW_KEY]:
                 self.stack.pop()
             else:
                 self.stream.advance()
@@ -109,7 +112,7 @@ class Parser:
         self.tree = self.tree.children[0]
 
     def expr_aware(self, rule):
-        if self.stack.top() == "Expr" and self.stream.next(by=2) != "=":
+        if self.stack.top() == "Expr" and self.stream.next(by=2)[0] != "=":
             return grammar["Expr"][1]
 
         return rule

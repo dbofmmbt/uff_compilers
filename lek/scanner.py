@@ -17,6 +17,7 @@ class Scanner:
     def scan(self, input: str) -> list[Token]:
         tokens = []
 
+        self.current_line = 1
         iter = input.__iter__()
 
         while result := self.next_token(iter):
@@ -59,7 +60,7 @@ class Scanner:
                         raise Exception(f"Token rejected by spec: {word + symbol}")
 
                     return (
-                        Token(category, word),
+                        Token(category, word, self.current_line),
                         itertools.chain(symbol, iterator),
                     )
                 else:
@@ -67,8 +68,10 @@ class Scanner:
                         case "":
                             # end of input
                             return None
-                        case " " | "\n":
-                            # just ignore those chars for now
+                        case " ":
+                            # just ignore it
                             pass
+                        case "\n":
+                            self.current_line += 1
                         case _:
                             raise Exception(f"Invalid token found: {word}")

@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class Token:
     category: str
     value: str
+    line: int
