@@ -72,8 +72,14 @@ class Parser:
 
         next_rule = look_ahead_table[self.stack.top()].get(self.stream.next())
         if next_rule is None:
+            expected_symbols = [
+                symbol
+                for symbol in look_ahead_table[self.stack.top()].keys()
+                if symbol != FOLLOW_KEY
+            ]
+
             self.error(
-                f"missing rule for stack `{self.stack.top()}` input `{self.stream.next()}`)"
+                f"Found `{self.stream.next()}`, expected one of {{ {' '.join(expected_symbols)} }}"
             )
 
             if self.stream.next() in look_ahead_table[self.stack.top()][FOLLOW_KEY]:
