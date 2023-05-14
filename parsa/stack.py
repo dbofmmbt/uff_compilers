@@ -1,3 +1,6 @@
+from typing import Self
+
+
 class Stack:
     def __init__(self, *initial) -> None:
         self.items = [*initial]
@@ -10,3 +13,8 @@ class Stack:
 
     def top(self):
         return self.items[-1]
+
+    def copy(self) -> Self:
+        new = Stack()
+        new.items = self.items.copy()
+        return new

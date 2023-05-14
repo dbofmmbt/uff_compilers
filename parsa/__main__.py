@@ -1,6 +1,7 @@
 from typing import Tuple
 from pathlib import Path
 import sys
+from typing import Self
 
 from .stack import Stack
 
@@ -37,27 +38,32 @@ class TokenStream:
     def advance(self):
         self.position += 1
 
+    def copy(self) -> Self:
+        stream = TokenStream(self.tokens)
+        stream.position = self.position
+        return stream
+
 
 class Parser:
-    def __init__(self) -> None:
+    def __init__(self, stream: TokenStream, fail_fast=False) -> None:
         self.errors = []
-
-    def parse(self, stream: TokenStream) -> Tree | list[str]:
         first_rule = "Function"
         self.tree = Tree(first_rule)
         self.stack = Stack(END, first_rule)
         self.stream = stream
+        self.fail_fast = fail_fast
 
+    def parse(self) -> Tree | list[str]:
         while self.stack.top() != END and self.stream.next()[0] != END:
             self.evaluate_next()
+
+        while self.tree.ancestor:
+            self.tree = self.tree.ancestor
 
         if self.stack.top() == self.stream.next()[0] and not self.errors:
             print("GG")
         else:
             return self.errors
-
-        while self.tree.ancestor:
-            self.tree = self.tree.ancestor
 
         return self.tree
 
@@ -69,11 +75,12 @@ class Parser:
             return
 
         if is_terminal(self.stack.top()):
-            self.error(f"input `{self.stream.next()}` != stack `{self.stack.top()}`")
+            self.error(f"input `{self.stream.next()[0]}` != stack `{self.stack.top()}`")
             self.stream.advance()
             return
 
         next_rule = look_ahead_table[self.stack.top()].get(self.stream.next()[0])
+
         if next_rule is None:
             expected_symbols = [
                 symbol
@@ -101,7 +108,34 @@ class Parser:
 
             return
 
-        next_rule = self.expr_aware(next_rule)
+        more_than_one_rule = isinstance(next_rule[0], list)
+        if more_than_one_rule:
+            errors = None
+            self.stack.pop()
+            for rule in next_rule:
+                sub_parser = Parser(self.stream.copy(), fail_fast=True)
+                sub_parser.stack = Stack(END)
+                sub_parser.tree = self.tree.copy()
+
+                for el in rule[::-1]:
+                    sub_parser.stack.push(el)
+
+                for el in rule:
+                    sub_parser.tree.child(el)
+                sub_parser.tree = sub_parser.tree.children[0]
+
+                result = sub_parser.parse()
+
+                if sub_parser.stack.top() == END and not sub_parser.errors:
+                    self.stream = sub_parser.stream
+                    self.tree.children = sub_parser.tree.children
+                    self.tree = self.tree.next_sibling() or self.tree
+                    return
+                else:
+                    assert isinstance(result, list)
+                    errors = result
+            if errors is not None:
+                return self.errors + errors
 
         self.stack.pop()
         for el in next_rule[::-1]:
@@ -111,17 +145,13 @@ class Parser:
             self.tree.child(rule)
         self.tree = self.tree.children[0]
 
-    def expr_aware(self, rule):
-        if self.stack.top() == "Expr" and self.stream.next(by=2)[0] != "=":
-            return grammar["Expr"][1]
-
-        return rule
-
     def error(self, error):
         self.errors.append(error)
+        if self.fail_fast:
+            self.stack.push(END)
 
 
-result = Parser().parse(TokenStream(tokens))
+result = Parser(TokenStream(tokens)).parse()
 
 if type(result) is Tree:
     print_ast(result)
