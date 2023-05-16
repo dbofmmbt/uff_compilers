@@ -10,6 +10,11 @@ class Tree:
         self.children = []
         self.content = content
 
+    def copy(self) -> Self:
+        new = Tree(self.content)
+        new.children = self.children.copy()
+        return new
+
     def child(self, content: str) -> Self:
         child = Tree(content)
         child.ancestor = self

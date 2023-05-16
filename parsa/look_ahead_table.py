@@ -146,8 +146,7 @@ look_ahead_table = {
         ),
     },
     "Expr": {
-        # Checar com o professor oq fazer, pq identifier pode estar nas 2 regras
-        "identifier": 0,
+        "identifier": [0, 1],
         "(": 1,
         "+": 1,
         "-": 1,
@@ -356,6 +355,8 @@ for non_terminal, terminals in look_ahead_table.items():
     for terminal, rule in terminals.items():
         if type(rule) is int:
             look_ahead_table[non_terminal][terminal] = grammar[non_terminal][rule]  # type: ignore
+        elif type(rule) is list:
+            look_ahead_table[non_terminal][terminal] = [grammar[non_terminal][r] for r in rule]
 
 look_ahead_table = typing.cast(dict[str, dict[str, list[str]]], look_ahead_table)
 
