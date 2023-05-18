@@ -154,7 +154,7 @@ look_ahead_table = {
         FOLLOW_KEY: set([")", ";"]),
     },
     "IfStmt": {
-        "if": 0,
+        "if": [0, 1],
         FOLLOW_KEY: set(
             [
                 "identifier",
@@ -186,20 +186,6 @@ look_ahead_table = {
     },
     "ElsePart": {
         "else": 0,
-        "identifier": 1,
-        "(": 1,
-        ";": 1,
-        "int": 1,
-        "float": 1,
-        "for": 1,
-        "while": 1,
-        "if": 1,
-        "else": 1,
-        "{": 1,
-        "}": 1,
-        "+": 1,
-        "-": 1,
-        "number": 1,
         FOLLOW_KEY: set(
             [
                 "identifier",
@@ -356,7 +342,9 @@ for non_terminal, terminals in look_ahead_table.items():
         if type(rule) is int:
             look_ahead_table[non_terminal][terminal] = grammar[non_terminal][rule]  # type: ignore
         elif type(rule) is list:
-            look_ahead_table[non_terminal][terminal] = [grammar[non_terminal][r] for r in rule]
+            look_ahead_table[non_terminal][terminal] = [
+                grammar[non_terminal][r] for r in rule
+            ]
 
 look_ahead_table = typing.cast(dict[str, dict[str, list[str]]], look_ahead_table)
 

@@ -31,9 +31,9 @@ OptExpr -> epsilon
 
 WhileStmt -> while ( Expr ) Stmt
 IfStmt -> if ( Expr ) Stmt ElsePart
+IfStmt -> if ( Expr ) Stmt
 
 ElsePart -> else Stmt
-ElsePart -> epsilon
 
 CompoundStmt -> { StmtList }
 

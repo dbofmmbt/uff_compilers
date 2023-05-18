@@ -92,7 +92,8 @@ class Parser:
                 f"On Line {self.stream.next()[2]} found `{self.stream.next()[0]}`, expected one of {{ {' '.join(expected_symbols)} }}"
             )
 
-            if self.stream.next()[0] in look_ahead_table[self.stack.top()][FOLLOW_KEY]:
+            entry = look_ahead_table.get(self.stack.top())
+            if entry and self.stream.next()[0] in entry[FOLLOW_KEY]:
                 self.stack.pop()
             else:
                 self.stream.advance()
