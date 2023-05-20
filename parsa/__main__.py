@@ -75,7 +75,7 @@ class Parser:
             return
 
         if is_terminal(self.stack.top()):
-            self.error(f"input `{self.stream.next()[0]}` != stack `{self.stack.top()}`")
+            self.error(f"On line {self.stream.next()[2]} input `{self.stream.next()[0]}` != stack `{self.stack.top()}`")
             self.stream.advance()
             return
 
@@ -109,6 +109,7 @@ class Parser:
 
             return
 
+        sub_parser = None
         more_than_one_rule = isinstance(next_rule[0], list)
         if more_than_one_rule:
             errors = None
@@ -136,7 +137,10 @@ class Parser:
                     assert isinstance(result, list)
                     errors = result
             if errors is not None:
-                return self.errors + errors
+                assert sub_parser
+                self.stream = sub_parser.stream
+                self.errors += errors
+                return
 
         self.stack.pop()
         for el in next_rule[::-1]:
