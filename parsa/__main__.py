@@ -52,6 +52,7 @@ class Parser:
         self.stack = Stack(END, first_rule)
         self.stream = stream
         self.fail_fast = fail_fast
+        self.backtrack_failed_recently = False
 
     def parse(self) -> Tree | list[str]:
         while self.stack.top() != END and self.stream.next()[0] != END:
@@ -72,10 +73,14 @@ class Parser:
             self.stack.pop()
             self.stream.advance()
             self.tree = self.tree.next_sibling() or self.tree
+            self.backtrack_failed_recently = False
             return
 
         if is_terminal(self.stack.top()):
-            self.error(f"On line {self.stream.next()[2]} input `{self.stream.next()[0]}` != stack `{self.stack.top()}`")
+            if not self.backtrack_failed_recently:
+                self.error(
+                    f"On line {self.stream.next()[2]} input `{self.stream.next()[0]}` != stack `{self.stack.top()}`"
+                )
             self.stream.advance()
             return
 
@@ -140,6 +145,7 @@ class Parser:
                 assert sub_parser
                 self.stream = sub_parser.stream
                 self.errors += errors
+                self.backtrack_failed_recently = True
                 return
 
         self.stack.pop()
