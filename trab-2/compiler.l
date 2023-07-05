@@ -29,8 +29,6 @@
 "}"    { return CURLY_RIGHT; }
 [0-9]+ { yylval = atoi(yytext); return NUMBER; }
 [a-zA-Z][a-zA-Z0-9]* { return ID; } // TODO save identifier in symbol table
-\n     { return NEWLINE; }
-[ \t]  { }
-.      { printf("Mystery character %s\n", yytext); }
+[ \t \n]  { }
 %%
 
