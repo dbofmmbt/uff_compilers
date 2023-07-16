@@ -1,24 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "list.h"
-
-typedef struct SymbolTable
-{
-    int current_ctx;
-    List contexts;
-} SymbolTable;
-
-typedef struct Ctx
-{
-    int parent;
-    int key;
-    List ids;
-} Ctx;
-
-typedef struct Id
-{
-    char *name, *type;
-} Id;
+#include "symbol_table.h"
 
 SymbolTable table_new()
 {

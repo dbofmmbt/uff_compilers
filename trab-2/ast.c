@@ -1,23 +1,19 @@
 #include <stdio.h>
 #include <stdarg.h>
-#include "list.h"
+#include <stdlib.h>
+#include "ast.h"
 
-typedef struct Ast
+Ast ast_new(char *type)
 {
-    Ast *parent;
-    char *type;
-    List children;
-} Ast;
-
-static void ast_add(Ast *ast, char *child_type)
-{
-    Ast *new = malloc(sizeof(Ast));
-    *new = (Ast){
+    return (Ast){
+        .type = type,
         .children = list_new(),
-        .parent = ast,
-        .type = child_type};
+    };
+}
 
-    list_add(&ast->children, new);
+static void ast_add(Ast *ast, Ast *child)
+{
+    list_add(&ast->children, child);
 }
 
 void ast_add_production(Ast *ast, int n, ...)
@@ -34,15 +30,30 @@ void ast_add_production(Ast *ast, int n, ...)
 
     for (int i = 0; i < n; i++)
     {
-        char *type = va_arg(args, char *);
+        Ast *child = va_arg(args, Ast *);
 
-        ast_add(ast, type);
+        ast_add(ast, child);
     }
 
     va_end(args);
 }
 
 int graphviz_node_count;
+
+static int save_rec(Ast *ast, FILE *f)
+{
+    int my_id = graphviz_node_count;
+    graphviz_node_count += 1;
+
+    fprintf(f, "node_%d\n", my_id);
+    for (Node *p = ast->children.first; p != NULL; p = p->next)
+    {
+        int child_id = save_rec(p->value, f);
+        fprintf(f, "node_%d -> node_%d\n", my_id, child_id);
+    }
+
+    return my_id;
+}
 
 void ast_save(Ast *ast, char *file_name)
 {
@@ -54,19 +65,4 @@ void ast_save(Ast *ast, char *file_name)
     fprintf(f, "}\n");
 
     fclose(f);
-}
-
-static int save_rec(Ast *ast, FILE *f)
-{
-    int my_id = graphviz_node_count;
-    graphviz_node_count += 1;
-
-    fprintf(f, "node_%d\n", my_id);
-    for (Node *p = ast->children.first; p != NULL; p = p->next)
-    {
-        int child_id = save_rec(&p->value, f);
-        fprintf(f, "node_%d -> node_%d\n", my_id, child_id);
-    }
-
-    return my_id;
 }
