@@ -43,8 +43,10 @@ Ast *ast_create_production(char *type, void *value, int n, ...)
     for (int i = 0; i < n; i++)
     {
         Ast *child = va_arg(args, Ast *);
-
-        ast_add(ast, child);
+        if (child)
+        {
+            ast_add(ast, child);
+        }
     }
 
     va_end(args);
@@ -59,7 +61,21 @@ static int save_rec(Ast *ast, FILE *f)
     int my_id = graphviz_node_count;
     graphviz_node_count += 1;
 
-    fprintf(f, "node_%d [label=\"%s\"]\n", my_id, ast->type);
+    if (!ast)
+    {
+        fprintf(f, "node_%d [label=\"NULL\"]\n", my_id);
+        return my_id;
+    }
+
+    if (ast->value)
+    {
+        fprintf(f, "node_%d [label=\"%s (%s)\"]\n", my_id, ast->type, ast->value);
+    }
+    else
+    {
+        fprintf(f, "node_%d [label=\"%s\"]\n", my_id, ast->type);
+    }
+
     for (Node *p = ast->children.first; p != NULL; p = p->next)
     {
         int child_id = save_rec(p->value, f);

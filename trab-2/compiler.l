@@ -27,8 +27,8 @@
 ")"    { return PAREN_RIGHT; }
 "{"    { return CURLY_LEFT; }
 "}"    { return CURLY_RIGHT; }
-[0-9]+ { yylval.int_val = atoi(yytext); return NUMBER; }
-[a-zA-Z][a-zA-Z0-9]* { return ID; } // TODO save identifier in symbol table
+[0-9]+ { yylval.str = strdup(yytext); return NUMBER; }
+[a-zA-Z][a-zA-Z]* { yylval.str = strdup(yytext); return ID; } // TODO save identifier in symbol table
 [ \t \n]  { }
 %%
 

@@ -9,7 +9,7 @@ extern FILE *yyin;
 extern char * yytext;
 %}
 
-%error-verbose
+%define parse.error verbose
 
 %union {
   char *str;
@@ -49,8 +49,8 @@ extern char * yytext;
 %token CURLY_LEFT
 %token CURLY_RIGHT
 
-%token <int_val> NUMBER
-%token <str> ID
+%token NUMBER
+%token ID
 
 %type <ast> Program
 %type <ast> Function
@@ -88,10 +88,9 @@ extern char * yytext;
 // EXAMPLE
 
 Program: Function {
-  printf("program\n");
 }
 
-Function: Type ID PAREN_LEFT ArgList PAREN_RIGHT CompoundStmt {
+Function: Type Id PAREN_LEFT ArgList PAREN_RIGHT CompoundStmt {
   $$ = ast_new("function");
 }
 
@@ -99,14 +98,14 @@ ArgList: Arg ArgList2
 
 ArgList2: COMMA Arg ArgList2 | %empty { $$ = NULL; }
 
-Arg: Type ID
+Arg: Type Id
 Declaration: Type IdentList SEMICOLON
 
 Type: INT | FLOAT | CHAR
 
-IdentList: ID IdentList2
+IdentList: Id IdentList2
 
-IdentList2: COMMA ID IdentList2 | %empty { $$ = NULL; }
+IdentList2: COMMA Id IdentList2 | %empty { $$ = NULL; }
 
 Stmt: ForStmt | WhileStmt | Expr SEMICOLON | IfStmt | CompoundStmt | Declaration | SEMICOLON
 
@@ -125,12 +124,11 @@ CompoundStmt: CURLY_LEFT StmtList CURLY_RIGHT
 
 StmtList: Stmt StmtList | %empty { $$ = NULL; }
 
-Expr: ID ASSIGN Expr | Rvalue
+Expr: Id ASSIGN Expr | Rvalue
 
 Rvalue: Mag Rvalue2 {
-  Ast *ast = ast_create_production("rvalue", NULL, 2, $1, $2);
-  $$ = ast;
-  // ast_save(ast, "ast.dot");
+  $$ = ast_create_production("rvalue", NULL, 2, $1, $2);
+  ast_save($$, "ast.dot");
 }
 
 Rvalue2: Compare Mag Rvalue2 {$$ = ast_create_production("rvalue2", NULL, 3, $1, $2, $3);} | %empty { $$ = NULL; }
@@ -142,32 +140,27 @@ Compare: EQ { $$ = ast_create_production("Compare", "EQ", 0); }
   | GE { $$ = ast_create_production("Compare", "GE", 0); }
   | DIF { $$ = ast_create_production("Compare", "DIF", 0); }
 
-Mag: Term Mag2 {$$ = ast_create_production("mag", NULL, 2, $1, $2);}
+Mag: Term Mag2 {$$ = ast_create_production("Mag", NULL, 2, $1, $2);}
 
-Mag2:
-  | ADD Term Mag2 { $$ = ast_create_production("Mag2", "ADD", 2, $2, $3); }
+Mag2: ADD Term Mag2 { $$ = ast_create_production("Mag2", "ADD", 2, $2, $3); }
   | SUB Term Mag2 { $$ = ast_create_production("Mag2", "SUB", 2, $2, $3); }
   | %empty { $$ = NULL; }
 
 Term: Factor Term2 { $$ = ast_create_production("Term", NULL, 2, $1, $2); }
 
-Term2:
-  | MUL Factor Term2 { $$ = ast_create_production("Term2", "MUL", 2, $2, $3); }
+Term2: MUL Factor Term2 { $$ = ast_create_production("Term2", "MUL", 2, $2, $3); }
   | DIV Factor Term2 { $$ = ast_create_production("Term2", "DIV", 2, $2, $3); }
   | %empty { $$ = NULL; }
 
-Factor:
-  | PAREN_LEFT Expr PAREN_RIGHT { $$ = ast_create_production("Factor", "WITH_PARENS", 1, $2); }
+Factor: PAREN_LEFT Expr PAREN_RIGHT { $$ = ast_create_production("Factor", "WITH_PARENS", 1, $2); }
   | SUB Factor { $$ = ast_create_production("Factor", "SUB", 1, $2); }
   | ADD Factor { $$ = ast_create_production("Factor", "ADD", 1, $2); }
   | Id { $$ = ast_create_production("Factor", NULL, 1, $1); }
-  | Number { $$ = ast_create_production("Factor", NULL, 1, $1); ast_save($$, "ast.dot"); }
+  | Number { $$ = ast_create_production("Factor", NULL, 1, $1); }
 
-Id:
-  ID { $$ = ast_with_value("ID", strdup(yytext)); }
+Id: ID { $$ = ast_with_value("ID", $<str>1); printf("%s\n", $<str>1); }
 
-Number:
-  NUMBER { $$ = ast_with_value("NUMBER", strdup(yytext)); }
+Number: NUMBER { $$ = ast_with_value("NUMBER", $<str>1); }
 
 ;
 %%
