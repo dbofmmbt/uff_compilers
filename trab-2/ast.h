@@ -6,13 +6,15 @@
 typedef struct Ast
 {
     char *type;
+    void *value;
     List children;
 } Ast;
 
 void ast_save(Ast *ast, char *file_name);
 
-void ast_add_production(Ast *ast, int n, ...);
+Ast *ast_create_production(char*type, void*value, int n, ...);
 
-Ast ast_new(char *type);
+Ast *ast_new(char *type);
+Ast *ast_with_value(char *type, void *value);
 
 #endif

@@ -3,12 +3,23 @@
 #include <stdlib.h>
 #include "ast.h"
 
-Ast ast_new(char *type)
+Ast *ast_new(char *type)
 {
-    return (Ast){
+    Ast *new = malloc(sizeof(Ast));
+    *new = (Ast){
         .type = type,
         .children = list_new(),
+        .value = NULL,
     };
+
+    return new;
+}
+
+Ast *ast_with_value(char *type, void *value)
+{
+    Ast *ast = ast_new(type);
+    ast->value = value;
+    return ast;
 }
 
 static void ast_add(Ast *ast, Ast *child)
@@ -16,10 +27,11 @@ static void ast_add(Ast *ast, Ast *child)
     list_add(&ast->children, child);
 }
 
-void ast_add_production(Ast *ast, int n, ...)
+Ast *ast_create_production(char *type, void *value, int n, ...)
 {
-    va_list args;
+    Ast *ast = ast_with_value(type, value);
 
+    va_list args;
     va_start(args, n);
 
     if (ast->children.size > 0)
@@ -36,6 +48,8 @@ void ast_add_production(Ast *ast, int n, ...)
     }
 
     va_end(args);
+
+    return ast;
 }
 
 int graphviz_node_count;
@@ -45,7 +59,7 @@ static int save_rec(Ast *ast, FILE *f)
     int my_id = graphviz_node_count;
     graphviz_node_count += 1;
 
-    fprintf(f, "node_%d\n", my_id);
+    fprintf(f, "node_%d [label=\"%s\"]\n", my_id, ast->type);
     for (Node *p = ast->children.first; p != NULL; p = p->next)
     {
         int child_id = save_rec(p->value, f);
@@ -60,7 +74,7 @@ void ast_save(Ast *ast, char *file_name)
     FILE *f = fopen(file_name, "w");
 
     graphviz_node_count = 0;
-    fprintf(f, "graph {\n");
+    fprintf(f, "digraph {\n");
     save_rec(ast, f);
     fprintf(f, "}\n");
 
