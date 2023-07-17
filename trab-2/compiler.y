@@ -88,47 +88,58 @@ extern char * yytext;
 // EXAMPLE
 
 Program: Function {
+  ast_save($1, "ast.dot");
 }
 
 Function: Type Id PAREN_LEFT ArgList PAREN_RIGHT CompoundStmt {
-  $$ = ast_new("function");
+  { $$ = ast_create_production("Function", NULL, 4, $1, $2, $4, $6); }
 }
 
-ArgList: Arg ArgList2
+ArgList: Arg ArgList2 { $$ = ast_create_production("ArgList", NULL, 2, $1, $2); }
 
-ArgList2: COMMA Arg ArgList2 | %empty { $$ = NULL; }
+ArgList2: COMMA Arg ArgList2 { $$ = ast_create_production("ArgList2", NULL, 2, $2, $3); } | %empty { $$ = NULL; }
 
-Arg: Type Id
-Declaration: Type IdentList SEMICOLON
+Arg: Type Id { $$ = ast_create_production("Arg", NULL, 2, $1, $2); }
+Declaration: Type IdentList SEMICOLON { $$ = ast_create_production("Declaration", NULL, 2, $1, $2); }
 
-Type: INT | FLOAT | CHAR
+Type: INT { $$ = ast_create_production("Type", "INT", 0); }
+  | FLOAT { $$ = ast_create_production("Type", "FLOAT", 0); }
+  | CHAR { $$ = ast_create_production("Type", "CHAR", 0); }
 
-IdentList: Id IdentList2
+IdentList: Id IdentList2 { $$ = ast_create_production("IdentList", NULL, 2, $1, $2); }
 
-IdentList2: COMMA Id IdentList2 | %empty { $$ = NULL; }
+IdentList2: COMMA Id IdentList2 { $$ = ast_create_production("IdentList2", NULL, 2, $2, $3); }
+  | %empty { $$ = NULL; }
 
-Stmt: ForStmt | WhileStmt | Expr SEMICOLON | IfStmt | CompoundStmt | Declaration | SEMICOLON
+Stmt: ForStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | WhileStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | Expr SEMICOLON { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | IfStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | CompoundStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | Declaration { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | SEMICOLON { $$ = ast_create_production("Stmt", ";", 0); }
 
-ForStmt: FOR PAREN_LEFT Expr SEMICOLON OptExpr SEMICOLON OptExpr PAREN_RIGHT Stmt
+ForStmt: FOR PAREN_LEFT Expr SEMICOLON OptExpr SEMICOLON OptExpr PAREN_RIGHT Stmt {$$ = ast_create_production("ForStmt", NULL, 4, $3, $5, $7, $9);}
 
-OptExpr: Expr | %empty { $$ = NULL; }
+OptExpr: Expr {$$ = ast_create_production("OptExpr", NULL, 1, $1);} | %empty { $$ = NULL; }
 
-WhileStmt: WHILE PAREN_LEFT Expr PAREN_RIGHT Stmt
+WhileStmt: WHILE PAREN_LEFT Expr PAREN_RIGHT Stmt {$$ = ast_create_production("WhileStmt", NULL, 2, $3, $5);}
 
-IfStmt: IF PAREN_LEFT Expr PAREN_RIGHT Stmt ElsePart
-  | IF PAREN_LEFT Expr PAREN_RIGHT Stmt
+IfStmt: IF PAREN_LEFT Expr PAREN_RIGHT Stmt ElsePart {$$ = ast_create_production("IfStmt", NULL, 3, $3, $5, $6);}
+  | IF PAREN_LEFT Expr PAREN_RIGHT Stmt {$$ = ast_create_production("IfStmt", NULL, 2, $3, $5);}
 
-ElsePart: ELSE Stmt
+ElsePart: ELSE Stmt {$$ = ast_create_production("ElsePart", NULL, 1, $2);}
 
-CompoundStmt: CURLY_LEFT StmtList CURLY_RIGHT
+CompoundStmt: CURLY_LEFT StmtList CURLY_RIGHT {$$ = ast_create_production("CompoundStmt", NULL, 1, $2);}
 
-StmtList: Stmt StmtList | %empty { $$ = NULL; }
+StmtList: Stmt StmtList {$$ = ast_create_production("StmtList", NULL, 2, $1, $2);}
+  | %empty { $$ = NULL; }
 
-Expr: Id ASSIGN Expr | Rvalue
+Expr: Id ASSIGN Expr {$$ = ast_create_production("Expr", "assign", 2, $1, $3);}
+  | Rvalue {$$ = ast_create_production("Expr", NULL, 1, $1);}
 
 Rvalue: Mag Rvalue2 {
-  $$ = ast_create_production("rvalue", NULL, 2, $1, $2);
-  ast_save($$, "ast.dot");
+  $$ = ast_create_production("Rvalue", NULL, 2, $1, $2);
 }
 
 Rvalue2: Compare Mag Rvalue2 {$$ = ast_create_production("rvalue2", NULL, 3, $1, $2, $3);} | %empty { $$ = NULL; }
