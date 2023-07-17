@@ -9,6 +9,40 @@ List list_new()
         .size = 0};
 }
 
+void *list_first(List *list)
+{
+    if (!list->first)
+    {
+        return NULL;
+    }
+    return list->first->value;
+}
+
+void *list_last(List *list)
+{
+    if (!list->last)
+    {
+        return NULL;
+    }
+    return list->last->value;
+}
+
+void *list_nth(List *list, int idx)
+{
+    if (list->size <= idx)
+    {
+        return NULL;
+    }
+
+    Node *current = list->first;
+    for (int i = 0; i < idx; i++)
+    {
+        current = current->next;
+    }
+
+    return current->value;
+}
+
 void list_add(List *list, void *value)
 {
     list->size += 1;

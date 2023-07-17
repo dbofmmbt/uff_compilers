@@ -7,6 +7,9 @@
 
 extern FILE *yyin;
 extern char * yytext;
+
+SymbolTable table;
+
 %}
 
 %define parse.error verbose
@@ -89,6 +92,7 @@ extern char * yytext;
 
 Program: Function {
   ast_save($1, "ast.dot");
+  table_print(table);
 }
 
 Function: Type Id PAREN_LEFT ArgList PAREN_RIGHT CompoundStmt {
@@ -100,7 +104,32 @@ ArgList: Arg ArgList2 { $$ = ast_create_production("ArgList", NULL, 2, $1, $2); 
 ArgList2: COMMA Arg ArgList2 { $$ = ast_create_production("ArgList2", NULL, 2, $2, $3); } | %empty { $$ = NULL; }
 
 Arg: Type Id { $$ = ast_create_production("Arg", NULL, 2, $1, $2); }
-Declaration: Type IdentList SEMICOLON { $$ = ast_create_production("Declaration", NULL, 2, $1, $2); }
+Declaration: Type IdentList SEMICOLON {
+    $$ = ast_create_production("Declaration", NULL, 2, $1, $2);
+    char *type = ((Ast *) $1)->value;
+    printf("variável %s\n", type);
+
+    Ast *ident_list = $2;
+    Ast *id_node = list_first(&ident_list->children);
+
+    Id id = (Id){
+      .name = id_node->value,
+      .type = type,
+    };
+    table_add_id(&table, id);
+
+    Ast *ident_list_2 = list_nth(&ident_list->children, 1);
+    while (ident_list_2 != NULL) {
+      Ast *id_node = list_first(&ident_list_2->children);
+      Id id = (Id){
+        .name = id_node->value,
+        .type = type,
+      };
+      table_add_id(&table, id);
+
+      ident_list_2 = list_nth(&ident_list_2->children, 1);
+    }
+  }
 
 Type: INT { $$ = ast_create_production("Type", "INT", 0); }
   | FLOAT { $$ = ast_create_production("Type", "FLOAT", 0); }
@@ -182,6 +211,8 @@ int main(int argc, char **argv)
     printf("usage: cmd <filename>\n");
     exit(1);
   }
+
+  table = table_new();
   
   FILE *file = fopen(argv[1], "r");
   if (!file) {

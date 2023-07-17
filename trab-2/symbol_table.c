@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "list.h"
@@ -5,9 +6,32 @@
 
 SymbolTable table_new()
 {
-    return (SymbolTable){
+    SymbolTable table = (SymbolTable){
         .current_ctx = -1,
         .contexts = list_new()};
+
+    // adding global ctx
+    table_add_ctx(&table);
+
+    return table;
+}
+
+void table_print(SymbolTable table)
+{
+    printf("\n-------------- SYMBOL TABLE --------------\n\n");
+
+    for (Node *i = table.contexts.first; i != NULL; i = i->next)
+    {
+        Ctx *ctx = i->value;
+        printf("ctx %d:\n", ctx->key);
+
+        for (Node *j = ctx->ids.first; j != NULL; j = j->next)
+        {
+            Id *id = j->value;
+            printf("    %s: %s\n", id->name, id->type);
+        }
+        printf("\n");
+    }
 }
 
 // returns ctx number
@@ -40,14 +64,6 @@ Ctx *table_ctx_current(SymbolTable table)
     return table_find_ctx(table, table.current_ctx);
 }
 
-void ctx_add(Ctx *ctx, Id id)
-{
-    Id *new_id = malloc(sizeof(Id));
-    *new_id = id;
-
-    list_add(&ctx->ids, new_id);
-}
-
 int find_id_by_name(char *name, Id *id)
 {
     return !strcmp(name, id->name);
@@ -57,4 +73,24 @@ int find_id_by_name(char *name, Id *id)
 Id *ctx_find(Ctx ctx, char *name)
 {
     return list_find(&ctx.ids, name, find_id_by_name);
+}
+
+void ctx_add(Ctx *ctx, Id id)
+{
+    if (ctx_find(*ctx, id.name))
+    {
+        printf("\e[1;31mSímbolo '%s' já presente no contexto!!!\e[0m\n", id.name);
+        exit(1);
+    }
+
+    Id *new_id = malloc(sizeof(Id));
+    *new_id = id;
+
+    list_add(&ctx->ids, new_id);
+}
+
+void table_add_id(SymbolTable *table, Id id)
+{
+    Ctx *current = table_ctx_current(*table);
+    ctx_add(current, id);
 }
