@@ -213,7 +213,7 @@ LabelStmt: Label SEMICOLON { $$ = ast_create_production("LabelStmt", NULL, 1, $1
 
 ForStmt: FOR PAREN_LEFT Expr SEMICOLON OptExpr SEMICOLON OptExpr PAREN_RIGHT Stmt {$$ = ast_create_production("ForStmt", NULL, 4, $3, $5, $7, $9);}
 
-OptExpr: Expr {$$ = ast_create_production("OptExpr", NULL, 1, $1);} | %empty { $$ = NULL; }
+OptExpr: Expr {$$ = ast_create_production("OptExpr", NULL, 1, $1);} | %empty { $$ = ast_create_production("OptExpr", "empty", 0); }
 
 WhileStmt: WHILE PAREN_LEFT Expr PAREN_RIGHT Stmt {$$ = ast_create_production("WhileStmt", NULL, 2, $3, $5);}
 

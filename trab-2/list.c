@@ -29,7 +29,7 @@ void *list_last(List *list)
 
 void *list_nth(List *list, int idx)
 {
-    if (list->size <= idx)
+    if (list->size <= idx || idx < 0)
     {
         return NULL;
     }

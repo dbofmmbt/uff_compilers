@@ -1,6 +1,6 @@
 int main(int i, int j)
 {
-    for(i = 50; i > 0; i = i + 1)
+    for(i = 50;;)
     {
         j = j * 2;
     }
