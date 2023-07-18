@@ -10,6 +10,26 @@ extern char * yytext;
 
 SymbolTable table;
 
+void add_arg_to_table(SymbolTable *table, Ast *arg_node)
+{
+  Ast *arg_type_node = list_nth(&arg_node->children, 0);
+  Ast *arg_id_node = list_nth(&arg_node->children, 1);
+  Id arg_id = (Id){
+    .name = arg_id_node->value,
+    .type = arg_type_node->value,
+  };
+  table_add_id(table, arg_id);
+}
+
+void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
+{
+  Id id = (Id){
+    .name = id_node->value,
+    .type = type,
+  };
+  table_add_id(table, id);
+}
+
 %}
 
 %define parse.error verbose
@@ -56,6 +76,7 @@ SymbolTable table;
 %token ID
 
 %type <ast> Program
+%type <ast> Signature
 %type <ast> Function
 %type <ast> ArgList
 %type <ast> ArgList2
@@ -95,8 +116,39 @@ Program: Function {
   table_print(table);
 }
 
-Function: Type Id PAREN_LEFT ArgList PAREN_RIGHT CompoundStmt {
-  { $$ = ast_create_production("Function", NULL, 4, $1, $2, $4, $6); }
+Signature: Type Id PAREN_LEFT ArgList PAREN_RIGHT {
+  $$ = ast_create_production("Signature", NULL, 3, $1, $2, $4);
+  table_add_ctx(&table);
+}
+
+Function: Signature  CompoundStmt {
+  $$ = ast_create_production("Function", NULL, 2, $1, $2);
+
+  Ast *signature_node = $1;
+  Ast *type_node = list_nth(&signature_node->children, 0);
+  Ast *id_node = list_nth(&signature_node->children, 1);
+  Ast *arg_list = list_nth(&signature_node->children, 2);
+
+  Ast *arg_node = list_first(&arg_list->children);
+  add_arg_to_table(&table, arg_node);
+
+  Ast *arg_list_2 = list_nth(&arg_list->children, 1);
+  while (arg_list_2 != NULL) {
+    Ast *arg_node = list_nth(&arg_list_2->children, 1);
+
+    add_arg_to_table(&table, arg_node);
+
+    arg_list_2 = list_nth(&arg_list_2->children, 2);
+  }
+
+  table_finish_ctx(&table);
+
+  char *type = type_node->value;
+  Id id = (Id){
+    .name = id_node->value,
+    .type = type,
+  };
+  table_add_id(&table, id);
 }
 
 ArgList: Arg ArgList2 { $$ = ast_create_production("ArgList", NULL, 2, $1, $2); }
@@ -111,21 +163,13 @@ Declaration: Type IdentList SEMICOLON {
 
     Ast *ident_list = $2;
     Ast *id_node = list_first(&ident_list->children);
-
-    Id id = (Id){
-      .name = id_node->value,
-      .type = type,
-    };
-    table_add_id(&table, id);
+    add_decl_to_table(&table, id_node, type);
 
     Ast *ident_list_2 = list_nth(&ident_list->children, 1);
     while (ident_list_2 != NULL) {
       Ast *id_node = list_first(&ident_list_2->children);
-      Id id = (Id){
-        .name = id_node->value,
-        .type = type,
-      };
-      table_add_id(&table, id);
+
+      add_decl_to_table(&table, id_node, type);
 
       ident_list_2 = list_nth(&ident_list_2->children, 1);
     }

@@ -49,6 +49,13 @@ int table_add_ctx(SymbolTable *table)
     return new_ctx->key;
 }
 
+int table_finish_ctx(SymbolTable *table)
+{
+    Ctx *current = table_ctx_current(*table);
+    table->current_ctx = current->parent;
+    return table->current_ctx;
+}
+
 int cmp_ctx_key(int key, Ctx *candidate)
 {
     return key == candidate->key;
