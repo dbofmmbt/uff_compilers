@@ -69,8 +69,40 @@ static Ast *convert_while(Ast *ast)
 // for (expr; optexpr1; optexpr2) stmt -> { expr; :start; if (optexpr1) stmt; else goto :end; optexpr2; goto :start; :end; }
 static Ast *convert_for(Ast *ast)
 {
-    // TODO convert for
-    return ast;
+    if (ast->children.size != 4)
+    {
+        printf("pode dar problemas por conta das optexprs...\n");
+    }
+    Ast *expr = convert(list_nth(&ast->children, 0));
+    Ast *optexpr_1 = convert(list_nth(&ast->children, 1));
+    Ast *optexpr_2 = convert(list_nth(&ast->children, 2));
+    Ast *original_stmt = convert(list_nth(&ast->children, 3));
+
+    Ast *start_stmt = build_label_stmt(":start");
+
+    Ast *goto_start = build_goto_stmt(":start");
+    Ast *goto_end = build_goto_stmt(":end");
+
+    Ast *else_end = ast_create_production("ElsePart", NULL, 1, goto_end);
+
+    Ast *if_stmt =
+        build_stmt(ast_create_production("IfStmt", NULL, 3, optexpr_1, original_stmt, else_end));
+
+    Ast *end_stmt = build_label_stmt(":end");
+
+    Ast *stmt_list = build_stmt_list(
+        expr,
+        build_stmt_list(
+            start_stmt,
+            build_stmt_list(
+                if_stmt,
+                build_stmt_list(
+                    optexpr_2,
+                    build_stmt_list(
+                        goto_start,
+                        build_stmt_list_end(end_stmt))))));
+
+    return ast_create_production("CompoundStmt", NULL, 1, stmt_list);
 }
 
 Ast *convert(Ast *ast)
