@@ -130,11 +130,11 @@ Signature: Type Id PAREN_LEFT ArgList PAREN_RIGHT {
 
   Ast *arg_list_2 = list_nth(&arg_list->children, 1);
   while (arg_list_2 != NULL) {
-    Ast *arg_node = list_nth(&arg_list_2->children, 1);
+    Ast *arg_node = list_first(&arg_list_2->children);
 
     add_arg_to_table(&table, arg_node);
 
-    arg_list_2 = list_nth(&arg_list_2->children, 2);
+    arg_list_2 = list_nth(&arg_list_2->children, 1);
   }
 }
 
@@ -193,6 +193,7 @@ Stmt: ForStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | IfStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | CompoundStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | Declaration { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | Function { $$ = ast_create_production("Stmt", "Function", 1, $1); }
   | SEMICOLON { $$ = ast_create_production("Stmt", ";", 0); }
 
 ForStmt: FOR PAREN_LEFT Expr SEMICOLON OptExpr SEMICOLON OptExpr PAREN_RIGHT Stmt {$$ = ast_create_production("ForStmt", NULL, 4, $3, $5, $7, $9);}

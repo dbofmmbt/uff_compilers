@@ -1,0 +1,7 @@
+int main (int g) {
+    int i;
+    i = 0;
+    i = i + 1;
+    int nestedfn(float i, int k) {}
+    i = i + 1;
+}
