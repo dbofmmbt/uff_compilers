@@ -11,7 +11,7 @@ SymbolTable table_new()
         .contexts = list_new()};
 
     // adding global ctx
-    table_add_ctx(&table);
+    table_add_ctx(&table, "global");
 
     return table;
 }
@@ -23,7 +23,7 @@ void table_print(SymbolTable table)
     for (Node *i = table.contexts.first; i != NULL; i = i->next)
     {
         Ctx *ctx = i->value;
-        printf("ctx %d:\n", ctx->key);
+        printf("ctx %s(%d):\n", ctx->name, ctx->key);
 
         for (Node *j = ctx->ids.first; j != NULL; j = j->next)
         {
@@ -35,10 +35,11 @@ void table_print(SymbolTable table)
 }
 
 // returns ctx number
-int table_add_ctx(SymbolTable *table)
+int table_add_ctx(SymbolTable *table, char*name)
 {
     Ctx *new_ctx = malloc(sizeof(Ctx));
     *new_ctx = (Ctx){
+        .name = name,
         .parent = table->current_ctx,
         .key = table->contexts.size,
         .ids = NULL};

@@ -118,7 +118,9 @@ Program: Function {
 
 Signature: Type Id PAREN_LEFT ArgList PAREN_RIGHT {
   $$ = ast_create_production("Signature", NULL, 3, $1, $2, $4);
-  table_add_ctx(&table);
+
+  Ast *id_node = $2;
+  table_add_ctx(&table, id_node->value);
 
   Ast *signature_node = $$;
   Ast *arg_list = list_nth(&signature_node->children, 2);
