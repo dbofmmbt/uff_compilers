@@ -119,14 +119,8 @@ Program: Function {
 Signature: Type Id PAREN_LEFT ArgList PAREN_RIGHT {
   $$ = ast_create_production("Signature", NULL, 3, $1, $2, $4);
   table_add_ctx(&table);
-}
 
-Function: Signature  CompoundStmt {
-  $$ = ast_create_production("Function", NULL, 2, $1, $2);
-
-  Ast *signature_node = $1;
-  Ast *type_node = list_nth(&signature_node->children, 0);
-  Ast *id_node = list_nth(&signature_node->children, 1);
+  Ast *signature_node = $$;
   Ast *arg_list = list_nth(&signature_node->children, 2);
 
   Ast *arg_node = list_first(&arg_list->children);
@@ -140,9 +134,16 @@ Function: Signature  CompoundStmt {
 
     arg_list_2 = list_nth(&arg_list_2->children, 2);
   }
+}
+
+Function: Signature  CompoundStmt {
+  $$ = ast_create_production("Function", NULL, 2, $1, $2);
 
   table_finish_ctx(&table);
 
+  Ast *signature_node = $1;
+  Ast *type_node = list_nth(&signature_node->children, 0);
+  Ast *id_node = list_nth(&signature_node->children, 1);
   char *type = type_node->value;
   Id id = (Id){
     .name = id_node->value,
