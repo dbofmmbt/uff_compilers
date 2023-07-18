@@ -10,6 +10,7 @@
 "while" { return WHILE; }
 "if"   { return IF; }
 "else" { return ELSE; }
+"goto" { return GOTO; }
 "+"    { return ADD; }
 "-"    { return SUB; }
 "*"    { return MUL; }
@@ -27,6 +28,7 @@
 ")"    { return PAREN_RIGHT; }
 "{"    { return CURLY_LEFT; }
 "}"    { return CURLY_RIGHT; }
+\:[a-z]* { yylval.str = strdup(yytext); return LABEL; }
 [0-9]+ { yylval.str = strdup(yytext); return NUMBER; }
 [a-zA-Z][a-zA-Z]* { yylval.str = strdup(yytext); return ID; } // TODO save identifier in symbol table
 [ \t \n]  { }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "ast.h"
 #include "symbol_table.h"
+#include "converter.h"
 
 extern FILE *yyin;
 extern char * yytext;
@@ -50,6 +51,9 @@ void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
 %token IF
 %token ELSE
 
+%token GOTO
+%token LABEL 
+
 %token ADD
 %token SUB
 %token MUL
@@ -90,6 +94,8 @@ void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
 %type <ast> OptExpr
 %type <ast> WhileStmt
 %type <ast> IfStmt
+%type <ast> LabelStmt
+%type <ast> GotoStmt
 %type <ast> ElsePart
 %type <ast> CompoundStmt
 %type <ast> StmtList
@@ -104,6 +110,7 @@ void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
 %type <ast> Factor
 %type <ast> Id
 %type <ast> Number
+%type <ast> Label
 
 
 %%
@@ -114,6 +121,8 @@ void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
 Program: Function {
   ast_save($1, "ast.dot");
   table_print(table);
+  Ast *converted = convert($1);
+  ast_save(converted, "ast-converted.dot");
 }
 
 Signature: Type Id PAREN_LEFT ArgList PAREN_RIGHT {
@@ -191,10 +200,16 @@ Stmt: ForStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | WhileStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | Expr SEMICOLON { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | IfStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
+  | LabelStmt { $$ = ast_create_production("Stmt", "LabelStmt", 1, $1);  }
+  | GotoStmt { $$ = ast_create_production("Stmt", "GotoStmt", 1, $1);  }
   | CompoundStmt { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | Declaration { $$ = ast_create_production("Stmt", NULL, 1, $1); }
   | Function { $$ = ast_create_production("Stmt", "Function", 1, $1); }
   | SEMICOLON { $$ = ast_create_production("Stmt", ";", 0); }
+
+GotoStmt: GOTO Label SEMICOLON { $$ = ast_create_production("GotoStmt", NULL, 1, $2);  }
+
+LabelStmt: Label SEMICOLON { $$ = ast_create_production("LabelStmt", NULL, 1, $1);  }
 
 ForStmt: FOR PAREN_LEFT Expr SEMICOLON OptExpr SEMICOLON OptExpr PAREN_RIGHT Stmt {$$ = ast_create_production("ForStmt", NULL, 4, $3, $5, $7, $9);}
 
@@ -250,6 +265,7 @@ Id: ID { $$ = ast_with_value("ID", $<str>1); printf("%s\n", $<str>1); }
 
 Number: NUMBER { $$ = ast_with_value("NUMBER", $<str>1); }
 
+Label: LABEL { $$ = ast_with_value("LABEL", $<str>1); }
 ;
 %%
 
