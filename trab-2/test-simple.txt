@@ -1,3 +1,4 @@
 int main (int g) {
+    int i;
     i = i + 1;
 }

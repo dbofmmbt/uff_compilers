@@ -30,7 +30,7 @@
 "}"    { return CURLY_RIGHT; }
 \:[a-z]* { yylval.str = strdup(yytext); return LABEL; }
 [0-9]+ { yylval.str = strdup(yytext); return NUMBER; }
-[a-zA-Z][a-zA-Z]* { yylval.str = strdup(yytext); return ID; } // TODO save identifier in symbol table
+[a-zA-Z][a-zA-Z0-9]* { yylval.str = strdup(yytext); return ID; } // TODO save identifier in symbol table
 [ \t \n]  { }
 %%
 

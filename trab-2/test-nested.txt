@@ -2,6 +2,11 @@ int main (int g) {
     int i;
     i = 0;
     i = i + 1;
-    int nestedfn(float i, int k) {}
+    int out;
+    out = 10;
+    int nestedfn(float i, int k) {
+        int inside;
+        inside = out;
+    }
     i = i + 1;
 }

@@ -31,6 +31,22 @@ void add_decl_to_table(SymbolTable *table, Ast* id_node, char *type)
   table_add_id(table, id);
 }
 
+int is_visible(SymbolTable table, char *name)
+{
+  int next_id = table.current_ctx;
+  while(next_id != -1)
+  {
+    Ctx *current = table_find_ctx(table, next_id);
+    if (ctx_find(*current, name))
+    {
+      return 1;
+    }
+
+    next_id = current->parent;
+  }
+  return 0;
+}
+
 %}
 
 %define parse.error verbose
@@ -258,7 +274,14 @@ Term2: MUL Factor Term2 { $$ = ast_create_production("Term2", "MUL", 2, $2, $3);
 Factor: PAREN_LEFT Expr PAREN_RIGHT { $$ = ast_create_production("Factor", "WITH_PARENS", 1, $2); }
   | SUB Factor { $$ = ast_create_production("Factor", "SUB", 1, $2); }
   | ADD Factor { $$ = ast_create_production("Factor", "ADD", 1, $2); }
-  | Id { $$ = ast_create_production("Factor", NULL, 1, $1); }
+  | Id {
+      $$ = ast_create_production("Factor", NULL, 1, $1);
+      Ast *id = $1;
+      if (!is_visible(table, id->value)) {
+        printf("\e[1;31mSímbolo '%s' não está no contexto!!!\e[0m\n", id->value);
+        exit(1);
+      }
+    }
   | Number { $$ = ast_create_production("Factor", NULL, 1, $1); }
 
 Id: ID { $$ = ast_with_value("ID", $<str>1); printf("%s\n", $<str>1); }
