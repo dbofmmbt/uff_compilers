@@ -308,6 +308,8 @@ int main(int argc, char **argv)
   }
   yyin = file;
 
+  printf("\n<-- PARSING %s -->\n\n", argv[1]);
+
   return yyparse();
 }
 
